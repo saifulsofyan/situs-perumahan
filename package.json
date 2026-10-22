@@ -1,0 +1,16 @@
+{
+  "name": "situs-perumahan",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Situs katalog perumahan: satu folder per rumah, dibangun otomatis menjadi situs statis.",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "sharp": "^0.35.4"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

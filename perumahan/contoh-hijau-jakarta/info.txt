@@ -1,0 +1,15 @@
+# Data contoh. Ganti dengan data asli, atau hapus folder ini kalau sudah tidak dipakai.
+nama: Contoh Hijau Town
+lokasi: Jakarta
+alamat: Kecamatan Contoh, Jakarta Selatan
+developer: PT Nama Developer
+sertifikat: SHM
+ringkas: Perumahan dengan dua pilihan tipe. Ganti kalimat ini dengan deskripsi singkat proyek yang benar.
+kantor: Alamat kantor pemasaran proyek
+fasilitas: One gate system, Taman lingkungan, Jalan lingkungan paving, Drainase tertutup
+youtube: 
+maps: 
+urutan: 2
+tipe:
+- Tipe 36/60 | 980 juta | LT 60 | LB 36 | KT 2 | KM 1 | Tersedia
+- Tipe 45/72 | 1,25 miliar | LT 72 | LB 45 | KT 3 | KM 2 | Tersedia

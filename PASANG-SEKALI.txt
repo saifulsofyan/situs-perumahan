@@ -1,0 +1,62 @@
+PEMASANGAN SEKALI SAJA: GITHUB + CLOUDFLARE PAGES
+==================================================
+
+Tujuannya: setiap kali Anda menyimpan perubahan di GitHub, situs diperbarui otomatis.
+Anda tidak perlu memasang program apa pun di komputer.
+
+Biaya: akun GitHub gratis. Cloudflare Pages gratis. Batas paket gratis Cloudflare Pages saat ini:
+500 build per bulan, 20.000 file per situs, 25 MB per file, dan satu build maksimal 20 menit.
+Setiap "Commit changes" di GitHub memicu satu build, jadi kumpulkan dulu beberapa foto lalu unggah
+sekaligus. Pemakaian mingguan masih jauh di bawah batas itu.
+
+
+LANGKAH 1. AKUN DAN REPOSITORY GITHUB
+-------------------------------------
+1. Daftar di github.com (gratis), lalu masuk.
+2. Tekan tanda + di kanan atas > New repository.
+3. Nama: situs-perumahan. Pilih Private (hanya Anda yang bisa melihat kodenya). Tekan Create repository.
+
+
+LANGKAH 2. UNGGAH ISI PAKET
+---------------------------
+1. Ekstrak file sumber-situs-perumahan.zip di komputer.
+2. Di halaman repository yang masih kosong, tekan "uploading an existing file".
+3. Seret SEMUA isi folder hasil ekstrak (bukan folder pembungkusnya), yaitu: assets, data, lib,
+   perumahan, apps-script, build.mjs, package.json, dan file panduan .txt. Tunggu sampai semuanya terunggah.
+   Batas GitHub lewat browser: 100 file sekali unggah. Paket ini jauh di bawah itu.
+4. Tekan Commit changes.
+Jangan unggah folder situs atau node_modules (paket ini memang tidak memuatnya).
+
+
+LANGKAH 3. HUBUNGKAN CLOUDFLARE PAGES
+-------------------------------------
+1. Masuk ke dash.cloudflare.com, buka Workers & Pages > Create > Pages > Connect to Git.
+2. Izinkan Cloudflare membaca GitHub Anda, lalu pilih repository situs-perumahan.
+3. Isi pengaturan build:
+      Framework preset ........ None
+      Build command ........... npm run build
+      Build output directory .. situs
+4. Tekan Save and Deploy. Tunggu sampai selesai. Cloudflare memasang kebutuhan build otomatis.
+   Versi Node bawaan build Cloudflare saat ini 22, sudah cukup.
+5. Cloudflare memberi alamat sementara berakhiran .pages.dev. Buka alamat itu di HP dan periksa tampilannya.
+
+Tampilan menu Cloudflare bisa berubah dari tulisan di atas. Kalau ada yang berbeda atau membingungkan,
+kirim tangkapan layarnya dan kita ikuti langkahnya bersama.
+
+
+LANGKAH 4. SEBELUM IKLAN DIJALANKAN
+-----------------------------------
+1. Ganti data contoh dengan data asli (lihat CARA-UBAH.txt bagian B).
+2. Isi data/rumah.json: identitas perusahaan, sales dan nomor WhatsApp, domain.
+3. Ubah "demo": false. Build akan menolak tayang kalau masih ada rumah tanpa foto, tulisan [ISI],
+   atau folder contoh bawaan.
+4. Hubungkan domain sendiri di Cloudflare: proyek > Custom domains.
+5. Pasang pencatat lead (Apps Script + Google Sheets) mengikuti PENCATAT-LEAD.txt, dan Meta Pixel,
+   sebelum iklan berbayar jalan. Jangan menjalankan iklan sebelum langkah uji di PENCATAT-LEAD.txt lolos.
+
+
+KALAU TIDAK MAU PAKAI GITHUB
+----------------------------
+Bisa juga membangun di komputer sendiri lalu mengunggah folder situs ke Cloudflare Pages lewat
+Direct Upload. Caranya: pasang Node.js, jalankan "npm install" lalu "npm run build" di folder ini,
+dan unggah isi folder situs/. Cara ini lebih repot untuk pemakaian mingguan.

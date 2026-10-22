@@ -1,0 +1,16 @@
+# Data contoh. Ganti dengan data asli, atau hapus folder ini kalau sudah tidak dipakai.
+nama: Contoh Damai Residence
+lokasi: Tangerang
+alamat: Kecamatan Contoh, Kota Tangerang
+developer: PT Nama Developer
+sertifikat: SHM
+ringkas: Perumahan dengan tiga pilihan tipe. Ganti kalimat ini dengan deskripsi singkat proyek yang benar.
+kantor: Alamat kantor pemasaran proyek
+fasilitas: One gate system, Taman bermain anak, Jalan lingkungan paving, Drainase tertutup
+youtube: 
+maps: 
+urutan: 5
+tipe:
+- Tipe 30/72 | 620 juta | LT 72 | LB 30 | KT 2 | KM 1 | Tersedia
+- Tipe 45/84 | 790 juta | LT 84 | LB 45 | KT 3 | KM 2 | Tersedia
+- Tipe 70/144 | 1,45 miliar | LT 144 | LB 70 | KT 4 | KM 3 | Tersedia

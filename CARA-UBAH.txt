@@ -1,0 +1,136 @@
+PANDUAN MINGGUAN: MENAMBAH RUMAH DAN MENGGANTI FOTO
+====================================================
+
+Prinsipnya: satu rumah = satu folder di dalam folder "perumahan".
+Isi folder itu hanya dua hal: satu file info.txt (data rumah) dan foto-fotonya.
+Foto tidak perlu dikecilkan atau diberi nama khusus. Situs mengecilkannya sendiri,
+menegakkan foto yang miring, dan menghapus data lokasi (GPS) dari foto.
+
+Semua langkah di bawah dikerjakan lewat browser di github.com, bisa dari HP maupun komputer.
+Setelah Anda menekan "Commit changes", Cloudflare membangun ulang situs sendiri.
+Biasanya perlu beberapa menit sampai perubahan tampil.
+
+(Pemasangan awal GitHub dan Cloudflare dilakukan sekali saja. Lihat PASANG-SEKALI.txt.)
+
+
+A. MENGGANTI ATAU MENAMBAH FOTO RUMAH YANG SUDAH ADA
+-----------------------------------------------------
+1. Buka repository di github.com, masuk ke folder perumahan, lalu ke folder rumahnya.
+2. Tekan Add file > Upload files, pilih atau seret foto baru, lalu tekan Commit changes.
+3. Menghapus foto lama: klik fotonya, buka menu titik tiga di kanan atas, pilih Delete file,
+   lalu Commit changes.
+
+Urutan foto mengikuti nama file, dan angka dihitung sebagai angka (2 muncul sebelum 10).
+Foto pertama menjadi sampul di beranda dan gambar pratinjau saat link dibagikan di WhatsApp
+dan Facebook. Contoh nama: 01-depan.jpg, 02-ruang-tamu.jpg, 03-kamar.jpg, 10-taman.jpg.
+
+Tips foto:
+ - Foto mendatar (landscape) paling bagus. Foto tegak tetap tampil utuh di atas latar buram.
+ - Format yang diterima: JPG, PNG, WebP. Foto iPhone berformat HEIC belum diterima. Ubah di
+   iPhone: Pengaturan > Kamera > Format > Paling Kompatibel. Foto yang dikirim lewat WhatsApp
+   biasanya sudah berformat JPG.
+ - Batas GitHub lewat browser: 100 file sekali unggah, 25 MB per file.
+ - Foto asli ikut tersimpan di GitHub. Kalau jumlahnya banyak tiap minggu, kecilkan dulu ke lebar
+   sekitar 1600 piksel (foto yang dikirim lewat WhatsApp biasanya sudah cukup kecil), supaya
+   repository tidak cepat membesar.
+ - Pakai foto asli proyek. Kalau sebagian gambar adalah render atau ilustrasi, tulis itu di
+   baris "ringkas:" di info.txt, jangan dicampur tanpa keterangan.
+
+
+B. MENAMBAH RUMAH BARU
+----------------------
+1. Di halaman utama repository tekan Add file > Create new file.
+   Di kolom nama file ketik:   perumahan/nama-rumah-baru/info.txt
+   (mengetik garis miring / otomatis membuat folder. Lebih aman pakai huruf kecil dan tanda hubung.)
+2. Buka file perumahan/_salin-ini/info.txt, salin seluruh isinya, tempel ke file baru tadi,
+   lalu ganti semua yang bertanda [ISI] dengan data asli. Tekan Commit changes.
+3. Masuk ke folder rumah baru, tekan Add file > Upload files, unggah foto-fotonya, lalu Commit changes.
+
+Nama folder menjadi alamat halaman, misalnya /rumah/nama-rumah-baru/.
+Jangan mengganti nama folder setelah iklan berjalan, karena link iklannya akan rusak.
+
+Contoh isi info.txt:
+
+    nama: Griya Hijau Residence
+    lokasi: Depok
+    alamat: Sawangan, Depok
+    developer: PT Contoh Developer
+    sertifikat: SHM
+    ringkas: Perumahan dekat stasiun dengan dua pilihan tipe.
+    fasilitas: One gate system, Taman bermain anak, Musala
+    youtube: https://youtu.be/xxxxxxxxxxx
+    maps: https://maps.app.goo.gl/xxxxxxxx
+    urutan: 1
+    tipe:
+    - Tipe 30/60 | 850 juta | LT 60 | LB 30 | KT 2 | KM 1 | Tersedia
+    - Tipe 45/84 | 1,3 miliar | LT 84 | LB 45 | KT 3 | KM 2 | Terjual
+    akses:
+    - Stasiun Contoh | 7 menit
+
+Aturan singkat:
+ - Wajib diisi: nama, lokasi, alamat, developer, sertifikat, ringkas, dan minimal satu tipe.
+   Yang lain boleh dihapus atau dikosongkan: kantor, fasilitas, youtube, maps, akses, urutan.
+ - lokasi: tulis nama yang sama persis untuk rumah di area yang sama. Pilihan lokasi di beranda
+   dibuat otomatis dari isian ini, jadi salah ketik (misalnya Depook) akan muncul sebagai lokasi baru.
+ - Harga boleh ditulis 850 juta, 1,05 miliar, Rp 850.000.000, atau 850000000.
+ - Satuan tipe: LT luas tanah, LB luas bangunan, KT kamar tidur, KM kamar mandi (semua wajib).
+ - Status: Tersedia atau Terjual. Tipe Terjual tidak punya tombol tanya. Kalau status dikosongkan,
+   dianggap Tersedia. Tulisan lain (misalnya Indent) juga dianggap masih tersedia.
+ - youtube: tempel link videonya. Unggah video ke YouTube dengan pilihan Tidak Publik (Unlisted).
+ - urutan: angka kecil tampil lebih dulu di beranda. Kalau tidak diisi, urut menurut nama folder.
+ - Baris yang diawali tanda # hanya catatan.
+ - akses: hanya isi jarak atau waktu yang sudah Anda cek sendiri. Kalau dihapus, bagian itu disembunyikan.
+
+
+C. MENGUBAH HARGA, STATUS TERJUAL, FASILITAS, DLL
+-------------------------------------------------
+Buka info.txt rumah itu, tekan ikon pensil, ubah isinya, lalu Commit changes.
+Contoh menandai satu tipe terjual: ganti kata Tersedia di akhir baris tipe itu menjadi Terjual.
+
+
+D. MENGHAPUS RUMAH
+------------------
+Buka folder rumahnya, tekan menu titik tiga di kanan atas, pilih Delete directory (kalau pilihan itu
+tidak ada, hapus file di dalamnya satu per satu), lalu Commit changes.
+
+
+E. KALAU BUILD GAGAL
+--------------------
+Kalau ada isian yang salah (harga tidak terbaca, label LT/LB/KT/KM kurang, foto rusak, dll),
+build berhenti dan menampilkan SEMUA masalahnya sekaligus, lengkap dengan nama folder dan nomor baris.
+Cara melihatnya: Cloudflare > proyek Anda > Deployments > klik deployment yang gagal > Build log.
+Cari tulisan "GALAT DATA". Perbaiki isiannya di GitHub, lalu Commit changes lagi.
+Perubahan di GitHub selalu bisa dibatalkan lewat tombol History pada file tersebut.
+
+
+F. PENGATURAN UMUM (JARANG DIUBAH): data/rumah.json
+---------------------------------------------------
+ - brand, perusahaan, alamat, telepon, email, jamKerja: identitas yang tampil di situs.
+ - sales: daftar sales dan nomor WhatsApp-nya, ditulis 628xxxxxxxxxx (tanpa +, spasi, atau 0 di depan).
+ - defaultSales: sales yang dipakai kalau link iklan tidak menyebut sales.
+ - domain: alamat situs, contoh https://namadomain.com (untuk sitemap dan pratinjau link).
+ - appsScriptUrl: alamat Apps Script pencatat lead ke Google Sheets. Cara membuatnya ada di PENCATAT-LEAD.txt.
+   Nomor sales juga harus ada di lembar Sales pada Sheet itu. Samakan dengan nomor di bagian sales ini.
+ - metaPixelId: ID Meta Pixel untuk pelacakan iklan.
+ - demo: true selama masih contoh. Ubah menjadi false saat siap tayang.
+
+Mode tayang ("demo": false):
+ - Banner contoh dan tanda kuning hilang, dan mesin pencari boleh membaca situs.
+ - Build berhenti kalau ada rumah yang belum punya foto, masih berisi tulisan [ISI], atau masih
+   memakai folder contoh bawaan (nama folder diawali "contoh-"). Hapus folder contoh sebelum tayang.
+
+
+G. LINK IKLAN PER SALES DAN SUMBER
+----------------------------------
+   namadomain.com/?sales=andi&src=fb
+   namadomain.com/rumah/griya-hijau-residence/?sales=sari&src=ig&utm_campaign=oktober&utm_content=video1
+Parameter ini terbawa saat pengunjung berpindah halaman. Nama sales (andi, sari) harus sama dengan
+nama di bagian sales pada data/rumah.json.
+
+
+H. MENCOBA DI KOMPUTER (OPSIONAL)
+---------------------------------
+Pasang Node.js, lalu di folder ini jalankan:
+   npm install
+   npm run build
+Hasilnya ada di folder situs/. Folder ini tidak perlu diunggah ke GitHub karena Cloudflare membuatnya sendiri.

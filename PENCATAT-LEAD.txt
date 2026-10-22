@@ -1,0 +1,122 @@
+PENCATAT LEAD: GOOGLE SHEETS + APPS SCRIPT
+==========================================
+
+Tujuannya: setiap calon pembeli tercatat di Google Sheets Anda LEBIH DULU sebelum WhatsApp terbuka ke sales.
+Sales tidak bisa menghapus atau mengubah catatan itu, karena sales tidak diberi akses ke Sheet-nya.
+
+Alurnya:
+ 1. Pengunjung memilih rumah, mengisi nama dan nomor HP di situs.
+ 2. Situs mengirim data ke skrip ini. Skrip mencatatnya di lembar Leads dengan kode unik, misalnya LD-7SPCQ16Y,
+    lalu menentukan sales yang menangani (sesuai link iklan, atau bergilir).
+ 3. WhatsApp terbuka ke sales itu dengan pesan yang sudah terisi dan memuat kode yang sama.
+ 4. Anda bisa mencocokkan: kode di pesan WhatsApp sales = kode di Sheet. Sales yang menyembunyikan lead tidak
+    bisa mengelak, dan lead yang tidak dihubungi muncul di pengingat.
+
+
+A. PEMASANGAN (sekitar 10 menit, sekali saja)
+---------------------------------------------
+Gunakan akun Google milik Anda atau perusahaan, BUKAN akun sales.
+
+1. Buat Google Sheet baru, namai "Lead Perumahan".
+   Atur zona waktu: File > Setelan > Zona waktu > (GMT+07:00) Jakarta.
+2. Buka Ekstensi > Apps Script. Hapus isi Code.gs, lalu tempel seluruh isi file apps-script/Code.gs. Simpan.
+   Di Setelan Proyek (ikon roda gigi), ubah Zona waktu menjadi Jakarta. (Atau tampilkan file manifes dan tempel
+   isi apps-script/appsscript.json. Salah satu cara sudah cukup.)
+3. Muat ulang halaman Sheet. Akan muncul menu baru: Lead Perumahan.
+4. Pilih Lead Perumahan > Siapkan lembar (pertama kali).
+   Google meminta izin. Ini wajar: pilih akun Anda, tekan Lanjutan, lalu "Buka ... (tidak aman)", lalu Izinkan.
+   Peringatan itu muncul karena skrip ini buatan sendiri dan belum diverifikasi Google.
+5. Isi lembar Sales. Satu baris satu sales:
+      Kunci ........ huruf kecil tanpa spasi, HARUS sama dengan nama di bagian "sales" pada data/rumah.json
+                     dan dengan yang dipakai di link iklan (?sales=andi).
+      Nama ......... nama sales.
+      WhatsApp ..... nomor 628xxxxxxxxxx. Baris yang nomornya belum valid tidak akan pernah ditugaskan.
+      Email ........ opsional. Kalau diisi, sales menerima pengingat lead yang belum dihubungi.
+      Aktif ........ Ya atau Tidak. Sales yang keluar: ubah ke Tidak, tidak perlu dihapus.
+      Ikut bergilir  Ya = ikut dibagi otomatis saat link iklan tidak menyebut sales. Tidak = hanya menerima
+                     lead dari link iklannya sendiri (cocok untuk nomor kantor).
+      Proyek ....... opsional. Isi alamat halaman rumah yang dipegang sales itu, yaitu bagian setelah /rumah/
+                     pada link rumahnya (sama dengan nama folder yang ditulis huruf kecil dengan tanda hubung).
+                     Pisahkan dengan koma, misalnya griya-hijau,asri-baru. Kosong = menangani semua proyek.
+6. Pilih Lead Perumahan > Pasang jadwal otomatis. Jadwal dipasang sekali dan tidak berlipat kalau diulang.
+7. Deploy sebagai aplikasi web:
+      Deploy > Deployment baru > ikon roda gigi > Aplikasi web
+      Jalankan sebagai: Saya.     Yang memiliki akses: Siapa saja.
+      Tekan Deploy, izinkan bila diminta, lalu salin URL aplikasi web (berakhiran /exec).
+8. Tempel URL itu di data/rumah.json pada GitHub:   "appsScriptUrl": "https://script.google.com/macros/s/.../exec"
+   Simpan (Commit changes). Situs terbangun ulang sendiri.
+9. Uji:
+      a. Di Sheet: Lead Perumahan > Tes catat satu lead. Satu baris TES muncul di lembar Leads. Hapus barisnya.
+      b. Di situs: isi form dengan nomor Anda sendiri. Pastikan barisnya muncul di Sheet DAN WhatsApp terbuka
+         ke sales yang benar dengan kode yang sama.
+
+Nomor sales ada di dua tempat. Nomor di lembar Sales yang dipakai saat skrip aktif. Nomor di data/rumah.json
+hanya cadangan kalau skrip lambat atau mati. Samakan keduanya.
+
+
+B. MEMBAGI LEAD KE SALES
+------------------------
+Urutan aturannya:
+ 1. Link iklan menyebut sales dan sales itu Aktif dengan nomor valid: lead ke sales itu.
+ 2. Selain itu, dibagi bergilir di antara sales yang Aktif, Ikut bergilir = Ya, dan nomornya valid.
+    Kalau lead memilih rumah tertentu dan ada sales yang memegang rumah itu (kolom Proyek), hanya mereka yang
+    kebagian. Kalau tidak ada yang memegang, dibagi ke sales yang kolom Proyek-nya kosong.
+ 3. Kalau tidak ada yang layak, WhatsApp dibuka ke nomor bawaan situs dan dicatat "cadangan".
+
+Kolom Penugasan di Leads menjelaskan alasannya: link sales, bergilir, atau cadangan.
+Kalau server lebih dari 3,5 detik tidak menjawab, situs tidak menunggu: WhatsApp dibuka ke nomor bawaan dan
+mengirim catatan cadangan, sehingga Sheet tetap mencatat nomor yang benar-benar dipakai ("cadangan (server lambat)").
+
+
+C. DIPAKAI SEHARI-HARI
+----------------------
+Lembar Leads: satu baris satu calon pembeli. Kolom yang Anda isi hanya Status dan Catatan.
+Status memakai pilihan dropdown:
+   Baru -> Dihubungi -> Survei dijadwalkan -> Sudah survei -> Booking -> Akad
+   Cabang: Tidak tertarik, Tidak bisa dihubungi.
+Saat Status atau Catatan diubah, kolom "Update terakhir" terisi otomatis. Saat Status pertama kali berubah dari
+Baru, kolom "Respon pertama (menit)" terisi otomatis: itu lama sales menghubungi lead. Semakin kecil semakin baik.
+
+Karena Anda yang mengisi status, minta sales melapor lewat WhatsApp dengan menyebut KODE leadnya
+(misalnya "LD-7SPCQ16Y sudah saya telepon, survei Sabtu"). Kode itu membuat laporan mudah dicocokkan.
+
+Lembar Dashboard (diperbarui tiap jam): per sales (lead total, 7 hari, belum dihubungi, lewat batas respon,
+persen dihubungi, survei, booking, rata-rata respon), per sumber iklan, per kampanye dan iklan, per proyek.
+Untuk memperbarui sekarang: menu Lead Perumahan > Perbarui dashboard sekarang.
+Lembar Pengaturan: batas jam respon, jam kerja pengingat, jumlah cek acak, email penerima laporan.
+
+
+D. PENGINGAT DAN LAPORAN OTOMATIS
+---------------------------------
+ - Tiap jam (08.00 sampai 20.00 WIB): lead berstatus Baru lebih dari 2 jam (bisa diubah) diingatkan lewat email
+   ke sales yang bersangkutan (kalau emailnya diisi) dan ke Anda. Satu lead diingatkan sekali. Sales hanya
+   menerima daftar leadnya sendiri.
+ - Tiap pagi 08.00: ringkasan lead kemarin per sales dan daftar lead yang masih Baru lebih dari 24 jam.
+ - Tiap Senin 09.00: CEK ACAK. Skrip memilih beberapa lead (bawaan 5) yang statusnya sudah Dihubungi atau lebih,
+   dari 7 hari terakhir, lalu mengirim daftarnya ke email Anda dan menuliskannya di lembar CekAcak.
+   Telepon atau WhatsApp mereka: "Apakah benar sudah dihubungi oleh [sales]?" Catat jawabannya di kolom Hasil cek.
+   Sales yang tahu dirinya bisa dicek acak cenderung lebih jujur melapor.
+
+
+E. MENGUBAH KODE SKRIP KEMUDIAN
+-------------------------------
+Setelah menempel kode baru, deployment lama TIDAK otomatis memakainya. Lakukan:
+   Deploy > Kelola deployment > ikon pensil > Versi: Versi baru > Deploy.
+URL tetap sama, jadi data/rumah.json tidak perlu diubah.
+
+
+F. KETERBATASAN YANG PERLU ANDA TAHU
+------------------------------------
+ - URL skrip tertanam di situs, jadi siapa pun yang menemukannya bisa mengirim lead palsu. Skrip memeriksa
+   format data dan menolak kiriman melebihi 30 lead per menit (bisa diubah di Pengaturan), tapi tidak ada cara
+   membuat formulir publik sepenuhnya kebal. Lead palsu tampak jelas di Sheet dan bisa dihapus.
+ - Sheet tidak bisa memaksa sales jujur. Yang bisa dilakukan: kode lead di pesan WhatsApp, waktu respon otomatis,
+   pengingat, dan cek acak. Aturan utamanya: sales tidak boleh diberi akses ke Sheet.
+ - Email dari skrip memakai kuota harian Google. Skrip memeriksa sisa kuota, dan kalau habis lead tidak ditandai
+   sudah diingatkan sehingga dicoba lagi jam berikutnya.
+ - Pertama kali tayang, skrip dapat lambat beberapa detik (Apps Script perlu "bangun"). Itu sebabnya ada jalur
+   cadangan di atas.
+ - Skrip ini diuji dengan tiruan layanan Google dan dengan formulir situs sungguhan di komputer pengembang,
+   bukan di Google langsung. Uji pertama di Sheet Anda (langkah 9) adalah ujian yang sebenarnya.
+ - Nomor HP pengunjung adalah data pribadi. Jangan membagikan Sheet ini ke banyak orang. Kebijakan privasi di
+   situs sudah menyebut penggunaannya.

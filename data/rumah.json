@@ -1,0 +1,30 @@
+{
+  "config": {
+    "demo": true,
+    "brand": "Nama Brand Anda",
+    "perusahaan": "PT Nama Perusahaan",
+    "alamat": "Alamat kantor lengkap, kota, kode pos",
+    "telepon": "0812 0000 0000",
+    "email": "info@namadomain.com",
+    "jamKerja": "Setiap hari, 09.00 sampai 17.00",
+    "domain": "",
+    "ogImage": "",
+    "appsScriptUrl": "https://script.google.com/macros/s/AKfycbwfvX9S_BOjGTbg0ENL6E_HqThoVZ8lsTVxudX1PJbu7Qnjv_tkbSrY-CDa9Oi4xpkEzA/exec",
+    "metaPixelId": "",
+    "defaultSales": "kantor",
+    "sales": {
+      "kantor": {
+        "name": "Tim Marketing",
+        "wa": "628000000001"
+      },
+      "andi": {
+        "name": "Andi",
+        "wa": "628000000002"
+      },
+      "sari": {
+        "name": "Sari",
+        "wa": "628000000003"
+      }
+    }
+  }
+}
