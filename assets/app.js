@@ -191,7 +191,23 @@
     siapa.textContent = 'Anda akan dihubungi tim marketing lewat WhatsApp.';
   }
 
+  // Apps Script yang lama tidak dipakai perlu beberapa detik untuk "bangun". Supaya kiriman lead tidak
+  // melewati batas waktu, skrip dibangunkan lebih dulu: saat pengunjung mulai berinteraksi dan saat
+  // formulir dibuka. Paling sering satu kali per 4 menit, dan hasilnya tidak dipakai.
+  var terakhirPanas = 0;
+  function panaskan() {
+    if (!C.appsScriptUrl) return;
+    var skr = Date.now();
+    if (skr - terakhirPanas < 240000) return;
+    terakhirPanas = skr;
+    try { fetch(C.appsScriptUrl, { method: 'GET', mode: 'no-cors', cache: 'no-store', credentials: 'omit' }).catch(function () {}); } catch (e3) { /* diabaikan */ }
+  }
+  ['pointerdown', 'scroll', 'keydown'].forEach(function (nm) {
+    window.addEventListener(nm, panaskan, { once: true, capture: true, passive: true });
+  });
+
   function openLead(p, t) {
+    panaskan();
     var want = p ? p + '|' + (t || '') : (PAGE ? PAGE.slug + '|' : '');
     sel.value = want;
     if (sel.value !== want) sel.value = p ? p + '|' : '';
