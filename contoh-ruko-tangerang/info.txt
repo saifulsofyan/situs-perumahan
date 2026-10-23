@@ -1,0 +1,16 @@
+# Data contoh ruko. Ganti dengan data asli, atau hapus folder ini kalau sudah tidak dipakai.
+nama: Contoh Niaga Square
+jenis: ruko
+lokasi: Tangerang
+alamat: Kecamatan Contoh, Tangerang
+developer: PT Nama Developer
+sertifikat: SHGB
+ringkas: Ruko di jalan utama dengan dua pilihan ukuran. Ganti kalimat ini dengan deskripsi singkat proyek yang benar.
+kantor: Alamat kantor pemasaran proyek
+fasilitas: Parkir luas, Jalan utama dua arah, Keamanan 24 jam, Saluran listrik dan air terpisah
+youtube: 
+maps: 
+urutan: 7
+tipe:
+- Ruko 2 Lantai | 2,1 miliar | LT 60 | LB 120 | Lantai 2 | KM 2 | Tersedia
+- Ruko 3 Lantai | 3,4 miliar | LT 84 | LB 240 | Lantai 3 | KM 3 | Tersedia

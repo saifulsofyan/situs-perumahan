@@ -1,0 +1,17 @@
+# Data contoh ruko yang DISEWAKAN. Ganti dengan data asli, atau hapus folder ini kalau sudah tidak dipakai.
+nama: Contoh Niaga Boulevard
+jenis: ruko
+transaksi: sewa
+lokasi: Depok
+alamat: Kecamatan Contoh, Depok
+developer: Nama Pengelola atau Pemilik Ruko
+sertifikat: HGB
+ringkas: Ruko di jalan utama yang disewakan, cocok untuk toko atau kantor. Ganti kalimat ini dengan deskripsi singkat yang benar.
+kantor: Alamat kantor pemasaran
+fasilitas: Parkir depan, Listrik 3 fase, Keamanan lingkungan
+youtube: 
+maps: 
+urutan: 9
+tipe:
+- Ruko 2 Lantai | 85 juta/tahun | LT 60 | LB 120 | Lantai 2 | Tersedia
+- Ruko 3 Lantai | 140 juta/tahun | LT 72 | LB 216 | Lantai 3 | Tersedia
