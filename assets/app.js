@@ -84,42 +84,67 @@
     }
   }
 
-  /* ---------- Katalog: tab lokasi ---------- */
-  var tabs = $$('.tab'), cards = $$('.kartu[data-lokasi]'), tiles = $$('.tile[data-lokasi]');
+  /* ---------- Katalog: pilihan dijual/disewa, jenis, dan lokasi (boleh digabung) ---------- */
+  var tabsLokasi = $$('.tab[data-lokasi]'), tabsJenis = $$('.tab[data-jenis]'), tabsTransaksi = $$('.tab[data-transaksi]');
+  var cards = $$('.kartu[data-lokasi]'), tiles = $$('.tile[data-lokasi]');
   var hitung = $('#hitung'), kosong = $('#kosong'), katalog = $('#katalog');
+  var pilihLokasi = 'semua', pilihJenis = 'semua', pilihTransaksi = 'semua';
 
-  function setLokasi(slug, push) {
-    slug = slug || 'semua';
-    tabs.forEach(function (t) { t.setAttribute('aria-pressed', String(t.getAttribute('data-lokasi') === slug)); });
+  function terapkan(push) {
+    tabsLokasi.forEach(function (t) { t.setAttribute('aria-pressed', String(t.getAttribute('data-lokasi') === pilihLokasi)); });
+    tabsJenis.forEach(function (t) { t.setAttribute('aria-pressed', String(t.getAttribute('data-jenis') === pilihJenis)); });
+    tabsTransaksi.forEach(function (t) { t.setAttribute('aria-pressed', String(t.getAttribute('data-transaksi') === pilihTransaksi)); });
     tiles.forEach(function (t) {
-      if (t.getAttribute('data-lokasi') === slug) t.setAttribute('aria-current', 'true'); else t.removeAttribute('aria-current');
+      if (t.getAttribute('data-lokasi') === pilihLokasi) t.setAttribute('aria-current', 'true'); else t.removeAttribute('aria-current');
     });
     var n = 0;
     cards.forEach(function (c) {
-      var show = slug === 'semua' || c.getAttribute('data-lokasi') === slug;
+      var show = (pilihLokasi === 'semua' || c.getAttribute('data-lokasi') === pilihLokasi) &&
+        (pilihJenis === 'semua' || c.getAttribute('data-jenis') === pilihJenis) &&
+        (pilihTransaksi === 'semua' || c.getAttribute('data-transaksi') === pilihTransaksi);
       c.hidden = !show;
       if (show) n++;
     });
-    if (hitung) hitung.textContent = n + ' perumahan';
+    if (hitung) {
+      var aktif = tabsJenis.filter(function (t) { return t.getAttribute('data-jenis') === pilihJenis; })[0];
+      var sebut = (aktif && aktif.getAttribute('data-nama')) || hitung.getAttribute('data-sebut') || 'perumahan';
+      var tr = tabsTransaksi.filter(function (t) { return t.getAttribute('data-transaksi') === pilihTransaksi; })[0];
+      hitung.textContent = n + ' ' + sebut + ((tr && tr.getAttribute('data-akhiran')) || '');
+    }
     if (kosong) kosong.hidden = n !== 0;
     if (push) {
-      try { history.replaceState(null, '', location.pathname + location.search + (slug === 'semua' ? '' : '#' + slug)); } catch (e) {}
+      var h = pilihLokasi !== 'semua' ? pilihLokasi : (pilihJenis !== 'semua' ? pilihJenis : (pilihTransaksi !== 'semua' ? pilihTransaksi : ''));
+      try { history.replaceState(null, '', location.pathname + location.search + (h ? '#' + h : '')); } catch (e) {}
     }
   }
-  if (katalog && tabs.length) {
-    tabs.forEach(function (t) {
-      t.addEventListener('click', function () { setLokasi(t.getAttribute('data-lokasi'), true); });
+  if (katalog && (tabsLokasi.length || tabsJenis.length || tabsTransaksi.length)) {
+    tabsLokasi.forEach(function (t) {
+      t.addEventListener('click', function () { pilihLokasi = t.getAttribute('data-lokasi'); terapkan(true); });
+    });
+    tabsJenis.forEach(function (t) {
+      t.addEventListener('click', function () { pilihJenis = t.getAttribute('data-jenis'); terapkan(true); });
+    });
+    tabsTransaksi.forEach(function (t) {
+      t.addEventListener('click', function () { pilihTransaksi = t.getAttribute('data-transaksi'); terapkan(true); });
     });
     tiles.forEach(function (t) {
       t.addEventListener('click', function (e) {
         e.preventDefault();
-        setLokasi(t.getAttribute('data-lokasi'), true);
+        pilihLokasi = t.getAttribute('data-lokasi');
+        terapkan(true);
         katalog.scrollIntoView({ behavior: scrollBehavior });
       });
     });
-    var h = decodeURIComponent((location.hash || '').slice(1));
-    if (h && tabs.some(function (t) { return t.getAttribute('data-lokasi') === h; })) {
-      setLokasi(h, false);
+    // Tautan seperti /#apartemen, /#depok, atau /#sewa langsung membuka daftar yang sudah disaring.
+    var h = decodeURIComponent((location.hash || '').slice(1)).toLowerCase();
+    var alias = { dijual: 'jual', disewa: 'sewa', disewakan: 'sewa' };
+    var tr0 = has(alias, h) ? alias[h] : h;
+    var cocokLokasi = tabsLokasi.some(function (t) { return t.getAttribute('data-lokasi') === h; });
+    var cocokJenis = tabsJenis.some(function (t) { return t.getAttribute('data-jenis') === h; });
+    var cocokTr = tabsTransaksi.some(function (t) { return t.getAttribute('data-transaksi') === tr0; });
+    if (h && h !== 'semua' && (cocokLokasi || cocokJenis || cocokTr)) {
+      if (cocokLokasi) pilihLokasi = h; else if (cocokJenis) pilihJenis = h; else pilihTransaksi = tr0;
+      terapkan(false);
       katalog.scrollIntoView({ behavior: 'auto' });
     }
   }
@@ -172,7 +197,7 @@
     o.value = ''; o.textContent = 'Belum tahu, mau konsultasi';
     sel.appendChild(o);
     LIST.forEach(function (p) {
-      var g = document.createElement('optgroup'); g.label = p.nama;
+      var g = document.createElement('optgroup'); g.label = p.nama + (S.campur && p.transaksi === 'sewa' ? ' (disewa)' : '');
       var a = document.createElement('option'); a.value = p.slug + '|'; a.textContent = 'Semua tipe'; g.appendChild(a);
       p.tipe.forEach(function (t) {
         var x = document.createElement('option'); x.value = p.slug + '|' + t; x.textContent = t; g.appendChild(x);
@@ -269,10 +294,10 @@
     }
   }
 
-  function waUrl(wa, lead, namaProyek) {
-    var minat = namaProyek ? namaProyek + (lead.tipe ? ' ' + lead.tipe : '') : 'rumah di ' + (C.brand || 'website Anda');
-    var text = 'Halo, saya ' + lead.nama + '. Saya tertarik dengan ' + minat +
-      '. Mohon info harga dan jadwal survei. (Kode: ' + lead.kode + ')';
+  function waUrl(wa, lead, namaProyek, tipe, sewa) {
+    var minat = namaProyek ? namaProyek + (tipe ? ' ' + tipe : '') : (S.sebut || 'rumah') + ' di ' + (C.brand || 'website Anda');
+    var text = 'Halo, saya ' + lead.nama + '. Saya tertarik ' + (sewa ? 'menyewa ' : 'dengan ') + minat +
+      '. Mohon info ' + (sewa ? 'harga sewa' : 'harga') + ' dan jadwal survei. (Kode: ' + lead.kode + ')';
     return 'https://wa.me/' + wa + '?text=' + encodeURIComponent(text);
   }
 
@@ -290,6 +315,9 @@
     var parts = String(sel.value || '').split('|');
     var proyek = LIST.filter(function (p) { return p.slug === parts[0]; })[0] || null;
     var tipe = proyek ? (parts[1] || '') : '';
+    // Properti sewa: kata "Sewa" ikut tercatat di kolom Tipe pada Sheet, supaya sales langsung tahu ini permintaan sewa.
+    var sewa = proyek ? proyek.transaksi === 'sewa' : !!S.semuaSewa;
+    var tipeCatat = sewa ? 'Sewa' + (tipe ? ': ' + tipe : '') : tipe;
 
     btn.disabled = true;
     btn.textContent = 'Membuka WhatsApp...';
@@ -301,7 +329,7 @@
       hp: hp,
       proyek: proyek ? proyek.slug : '',
       proyekNama: proyek ? proyek.nama : '',
-      tipe: tipe,
+      tipe: tipeCatat,
       sales: sales.key,
       salesLink: salesReq,
       src: src,
@@ -318,7 +346,7 @@
     }
 
     if (window.fbq) fbq('track', 'Lead', { content_name: proyek ? proyek.nama : (C.brand || '') });
-    setTimeout(function () { location.assign(waUrl(target, lead, proyek ? proyek.nama : '')); }, window.fbq ? 250 : 0);
+    setTimeout(function () { location.assign(waUrl(target, lead, proyek ? proyek.nama : '', tipe, sewa)); }, window.fbq ? 250 : 0);
   });
 
   // Kembali dari WhatsApp: aktifkan lagi tombol kirim

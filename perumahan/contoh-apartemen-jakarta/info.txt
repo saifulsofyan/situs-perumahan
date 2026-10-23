@@ -1,0 +1,17 @@
+# Data contoh apartemen. Ganti dengan data asli, atau hapus folder ini kalau sudah tidak dipakai.
+nama: Contoh Sky Residence
+jenis: apartemen
+lokasi: Jakarta
+alamat: Kecamatan Contoh, Jakarta Selatan
+developer: PT Nama Developer
+sertifikat: SHMSRS
+ringkas: Apartemen dengan tiga pilihan unit. Ganti kalimat ini dengan deskripsi singkat proyek yang benar.
+kantor: Alamat kantor pemasaran proyek
+fasilitas: Kolam renang, Pusat kebugaran, Lobi dan resepsionis, Area parkir, Keamanan 24 jam
+youtube: 
+maps: 
+urutan: 6
+tipe:
+- Studio 24 | 780 juta | LB 24 | KT 0 | KM 1 | Tersedia
+- Tipe 2BR 48 | 1,45 miliar | LB 48 | KT 2 | KM 1 | Tersedia
+- Tipe 3BR 72 | 2,2 miliar | LB 72 | KT 3 | KM 2 | Terjual

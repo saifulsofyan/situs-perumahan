@@ -97,6 +97,10 @@ mark.isi{background:#FFE7A8;color:var(--daun-tua);padding:0 .25em;border-radius:
 .tab:hover{border-color:var(--daun)}
 .tab[aria-pressed="true"]{background:var(--daun);border-color:var(--daun);color:#fff}
 .hitung{color:var(--redam);font-size:.92rem;margin-bottom:16px}
+.saring-label{margin:12px 0 2px;font:700 .78rem/1 var(--f-isi);letter-spacing:.06em;text-transform:uppercase;color:var(--redam)}
+.jenis-label{display:inline-block;justify-self:start;width:fit-content;margin:0;padding:5px 10px;border-radius:6px;background:#E3F0EA;color:var(--daun);font:700 .74rem/1 var(--f-isi);letter-spacing:.06em;text-transform:uppercase}
+.judul-blok .jenis-label{margin-top:10px}
+.jenis-label.sewa{background:#FDEFC9;color:#7A5200}
 .grid{display:grid;gap:20px;grid-template-columns:1fr}
 @media (min-width:640px){.grid{grid-template-columns:1fr 1fr}}
 @media (min-width:1000px){.grid{grid-template-columns:repeat(3,1fr)}}

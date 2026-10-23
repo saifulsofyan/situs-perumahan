@@ -1,13 +1,19 @@
-# CONTOH ISI UNTUK RUMAH BARU. Folder ini diabaikan oleh situs (namanya diawali garis bawah).
-# Cara pakai: salin seluruh isi file ini ke info.txt di folder rumah baru, lalu ganti semua yang bertanda [ISI].
+# CONTOH ISI UNTUK PROPERTI BARU (perumahan, apartemen, atau ruko). Folder ini diabaikan oleh situs (namanya diawali garis bawah).
+# Cara pakai: salin seluruh isi file ini ke info.txt di folder properti baru, lalu ganti semua yang bertanda [ISI].
 # Baris yang diawali tanda # hanya catatan dan tidak tampil di situs.
 # Bagian "tipe" boleh ditambah atau dikurangi. Satu tipe satu baris, diawali tanda "-".
 
-nama: [ISI] Nama perumahan
+nama: [ISI] Nama perumahan, apartemen, atau ruko
+# Jenis: tulis perumahan, apartemen, atau ruko. Kalau baris ini dihapus, dianggap perumahan.
+jenis: perumahan
+# Transaksi: tulis jual (dijual) atau sewa (disewa). Kalau baris ini dihapus, dianggap jual.
+# Untuk sewa: harga di bagian tipe WAJIB memakai satuan waktu, contoh 25 juta/tahun atau 3,5 juta/bulan.
+transaksi: jual
 lokasi: [ISI] Nama kota atau area, contoh: Depok
 # Tulis nama lokasi yang sama persis untuk semua rumah di area yang sama (Depok dan depok dianggap sama).
 alamat: [ISI] Kecamatan dan kota, contoh: Sawangan, Depok
 developer: [ISI] PT nama developer
+# Sertifikat: boleh dikosongkan untuk properti sewa, wajib untuk properti dijual.
 sertifikat: [ISI] SHM atau HGB
 ringkas: [ISI] Satu atau dua kalimat tentang proyek ini. Hanya tulis yang benar.
 kantor: [ISI] Alamat kantor pemasaran (boleh dikosongkan)
@@ -24,9 +30,18 @@ maps:
 urutan: 1
 
 # Format satu tipe:
-# - Nama tipe | harga | LT luas tanah | LB luas bangunan | KT kamar tidur | KM kamar mandi | status
-# Harga boleh ditulis: 850 juta, 1,05 miliar, atau 850000000.
-# Status: Tersedia atau Terjual. Kalau status dikosongkan dianggap Tersedia. Tipe Terjual tidak punya tombol tanya.
+# - Nama tipe | harga | ukuran | status
+# Ukuran yang wajib tergantung jenis:
+#   perumahan: LT (luas tanah), LB (luas bangunan), KT (kamar tidur), KM (kamar mandi)
+#              contoh: LT 60 | LB 30 | KT 2 | KM 1
+#   apartemen: LB (luas unit), KT (kamar tidur, tulis KT 0 untuk studio), KM (kamar mandi)
+#              contoh: LB 36 | KT 2 | KM 1
+#   ruko:      LT (luas tanah), LB (luas bangunan), Lantai (jumlah lantai); KM boleh ditambah
+#              contoh: LT 72 | LB 180 | Lantai 3
+# Harga jual boleh ditulis: 850 juta, 1,05 miliar, atau 850000000.
+# Harga sewa wajib memakai satuan waktu: 25 juta/tahun, 3,5 juta/bulan. Contoh baris tipe sewa:
+#   - Studio 24 | 4,5 juta/bulan | LB 24 | KT 0 | KM 1 | Tersedia
+# Status: Tersedia atau Terjual (untuk sewa: Disewa). Kalau status dikosongkan dianggap Tersedia. Tipe Terjual atau Disewa tidak punya tombol tanya.
 tipe:
 - [ISI] Tipe 30/60 | 850 juta | LT 60 | LB 30 | KT 2 | KM 1 | Tersedia
 - [ISI] Tipe 36/72 | 1,05 miliar | LT 72 | LB 36 | KT 2 | KM 1 | Tersedia

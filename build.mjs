@@ -4,7 +4,7 @@
 import { readFileSync, writeFileSync, mkdirSync, cpSync, rmSync, existsSync, readdirSync, renameSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseInfo, slugify } from './lib/info.mjs';
+import { parseInfo, slugify, JENIS } from './lib/info.mjs';
 import { daftarFoto, prosesFoto, muatSharp } from './lib/foto.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
@@ -77,6 +77,24 @@ daftarRumah.sort((a, b) => a.urutan - b.urutan || a.slug.localeCompare(b.slug));
 data.perumahan = daftarRumah;
 if (galat.length) berhenti();
 
+// Jenis yang dipakai (urutan tetap: perumahan, apartemen, ruko). Kalau lebih dari satu, teks situs memakai kata "properti".
+const jenisAda = Object.keys(JENIS).filter((j) => daftarRumah.some((p) => p.jenis === j));
+const banyakJenis = jenisAda.length > 1;
+const solo = banyakJenis ? null : jenisAda[0];
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const PROP = banyakJenis ? 'properti' : JENIS[solo].nama.toLowerCase(); // perumahan | apartemen | ruko | properti
+const RUMAH = banyakJenis ? 'properti' : ({ perumahan: 'rumah', apartemen: 'apartemen', ruko: 'ruko' })[solo];
+const UNIT = solo === 'perumahan' ? 'rumah' : 'unit';
+// Transaksi: jual (dijual) atau sewa (disewa). Kalau ada dua-duanya ("campur"), situs menampilkan pilihan Dijual/Disewa.
+const sewaP = (p) => p.transaksi === 'sewa';
+const adaSewa = daftarRumah.some(sewaP);
+const adaJual = daftarRumah.some((p) => !sewaP(p));
+const campur = adaSewa && adaJual;
+const MODE = campur ? 'campur' : adaSewa ? 'sewa' : 'jual';
+const AKSI = { jual: 'dijual', sewa: 'disewakan', campur: 'dijual dan disewakan' }[MODE];
+const RUMAH_H1 = MODE === 'sewa' ? RUMAH + ' sewa' : RUMAH;
+const gabung = (a) => (a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' dan ' + a[a.length - 1]);
+
 /* ---------- Pembantu ---------- */
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const m = (s) => (DEMO ? `<mark class="isi">${esc(s)}</mark>` : esc(s));
@@ -85,11 +103,53 @@ const jsonInline = (o) => JSON.stringify(o).replace(/</g, '\\u003c');
 
 function rupiah(n) {
   if (n >= 1e9) return 'Rp ' + String(Math.round((n / 1e9) * 100) / 100).replace('.', ',') + ' miliar';
-  return 'Rp ' + Math.round(n / 1e6) + ' juta';
+  if (n >= 1e6) return 'Rp ' + String(Math.round((n / 1e6) * 100) / 100).replace('.', ',') + ' juta';
+  return 'Rp ' + Math.round(n / 1e3) + ' ribu';
 }
 const avail = (p) => p.tipe.filter((t) => t.status !== 'Terjual');
-const minHarga = (p) => { const a = avail(p); return a.length ? Math.min(...a.map((t) => t.harga)) : null; };
-const minLt = (p) => Math.min(...(avail(p).length ? avail(p) : p.tipe).map((t) => t.lt));
+// Harga ditulis lengkap dengan satuan waktu untuk properti sewa, misalnya "Rp 25 juta/tahun".
+const hargaTeks = (p, t) => rupiah(t.harga) + (sewaP(p) ? '/' + t.periode : '');
+const perBulan = (t) => t.harga / (t.periode === 'tahun' ? 12 : 1);
+// Tipe tersedia dengan harga terendah (untuk sewa dibandingkan per bulan, supaya /bulan dan /tahun adil).
+const minTipe = (p) => {
+  const a = avail(p);
+  if (!a.length) return null;
+  return a.reduce((b, t) => ((sewaP(p) ? perBulan(t) < perBulan(b) : t.harga < b.harga) ? t : b));
+};
+const hargaMulaiLabel = (p) => (sewaP(p) ? 'Sewa mulai' : 'Harga mulai');
+const habisTeks = (p) => (sewaP(p) ? 'Semua tipe sudah disewa' : 'Semua tipe terjual');
+// Lencana di kartu dan halaman detail: jenis (kalau ada beberapa jenis) dan dijual/disewa (kalau ada keduanya).
+function labelProp(p) {
+  const bag = [];
+  if (banyakJenis) bag.push(JENIS[p.jenis].nama);
+  if (campur) bag.push(sewaP(p) ? 'Disewa' : 'Dijual');
+  return bag.join(' · ');
+}
+const lencana = (p) => (labelProp(p) ? `<p class="jenis-label${campur && sewaP(p) ? ' sewa' : ''}">${esc(labelProp(p))}</p>` : '');
+const dasar = (p) => (avail(p).length ? avail(p) : p.tipe);
+// Ukuran terkecil yang ditampilkan di kartu: tanah untuk perumahan dan ruko, luas unit untuk apartemen.
+function ukuranMulai(p) {
+  if (p.jenis === 'apartemen') return `Unit mulai ${Math.min(...dasar(p).map((t) => t.lb))} m²`;
+  return `Tanah mulai ${Math.min(...dasar(p).map((t) => t.lt))} m²`;
+}
+// Baris spesifikasi satu tipe di halaman detail.
+function spekTipe(p, t) {
+  const r = [];
+  if (p.jenis === 'apartemen') {
+    r.push(`Unit ${t.lb} m²`);
+    if (typeof t.lt === 'number') r.push(`Tanah ${t.lt} m²`);
+    r.push(t.kt === 0 ? 'Studio' : `${t.kt} kamar tidur`);
+    r.push(`${t.km} kamar mandi`);
+    if (typeof t.lantai === 'number') r.push(`Lantai ${t.lantai}`);
+    return r;
+  }
+  if (typeof t.lt === 'number') r.push(`Tanah ${t.lt} m²`);
+  r.push(`Bangunan ${t.lb} m²`);
+  if (typeof t.lantai === 'number') r.push(`${t.lantai} lantai`);
+  if (typeof t.kt === 'number') r.push(`${t.kt} kamar tidur`);
+  if (typeof t.km === 'number') r.push(`${t.km} kamar mandi`);
+  return r;
+}
 
 const DEFAULT_AKSES = [
   { nama: 'Jalan raya utama', waktu: 'xx menit' },
@@ -106,7 +166,37 @@ const SETS = [
   { sky: '#DCEBE4', roof: '#7A3B33', wall: '#FFFFFF', acc: '#CFE5DB', hill: '#9CC4B0', ground: '#2E6B55' },
   { sky: '#E6EFEA', roof: '#3D5A40', wall: '#FBFBF3', acc: '#F4B63F', hill: '#B2D2C1', ground: '#34705A' },
 ];
-function ilustrasi(i) {
+// Ilustrasi menara apartemen dan deretan ruko, untuk contoh sebelum ada foto asli.
+function ilustrasiBangunan(i, jenis) {
+  const c = SETS[i % SETS.length];
+  const awal = `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Ilustrasi contoh ${jenis}" focusable="false">
+<rect width="400" height="300" fill="${c.sky}"/>
+<circle cx="338" cy="58" r="24" fill="#F4B63F" opacity=".9"/>
+<path d="M0 232 Q110 190 220 224 T400 210 V300 H0Z" fill="${c.hill}"/>
+<path d="M0 262 Q140 238 280 258 T400 252 V300 H0Z" fill="${c.ground}"/>`;
+  const jendela = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${c.acc}"/>`;
+  let isi = '';
+  if (jenis === 'apartemen') {
+    isi += `<rect x="138" y="44" width="124" height="218" rx="3" fill="${c.wall}"/><rect x="132" y="36" width="136" height="12" rx="3" fill="${c.roof}"/>`;
+    for (let r = 0; r < 5; r++) for (let k = 0; k < 3; k++) isi += jendela(152 + k * 36, 62 + r * 31, 24, 20);
+    isi += `<rect x="268" y="108" width="62" height="154" rx="3" fill="${c.wall}"/><rect x="264" y="102" width="70" height="9" rx="3" fill="${c.roof}"/>`;
+    for (let r = 0; r < 4; r++) for (let k = 0; k < 2; k++) isi += jendela(278 + k * 26, 122 + r * 31, 18, 20);
+    isi += `<rect x="70" y="170" width="68" height="92" rx="3" fill="${c.wall}"/><rect x="66" y="164" width="76" height="9" rx="3" fill="${c.roof}"/>`;
+    for (let r = 0; r < 3; r++) for (let k = 0; k < 2; k++) isi += jendela(80 + k * 28, 184 + r * 26, 20, 16);
+    isi += `<path d="M186 262V238a14 14 0 0 1 28 0V262Z" fill="${c.roof}"/>`;
+  } else {
+    isi += `<rect x="54" y="92" width="292" height="170" rx="3" fill="${c.wall}"/><rect x="48" y="84" width="304" height="12" rx="3" fill="${c.roof}"/>`;
+    for (let k = 0; k < 4; k++) {
+      const x = 54 + k * 73;
+      isi += jendela(x + 14, 112, 45, 26) + jendela(x + 14, 160, 45, 26);
+      isi += `<rect x="${x + 8}" y="214" width="57" height="8" fill="${c.acc}"/><rect x="${x + 12}" y="224" width="49" height="38" fill="${c.roof}"/>`;
+      if (k) isi += `<rect x="${x - 1}" y="96" width="3" height="166" fill="${c.hill}"/>`;
+    }
+  }
+  return awal + isi + '\n</svg>';
+}
+function ilustrasi(i, jenis = 'perumahan') {
+  if (jenis !== 'perumahan') return ilustrasiBangunan(i, jenis);
   const c = SETS[i % SETS.length];
   const two = i % 2 === 1;
   const top = two ? 100 : 150;
@@ -133,31 +223,87 @@ function fotoKartu(p, i, base) {
   if (p.kartu) {
     return `<img src="${base}foto/${p.slug}/${esc(p.kartu.file)}" alt="${esc(p.nama)}" width="${p.kartu.w}" height="${p.kartu.h}" loading="lazy" decoding="async">`;
   }
-  return ilustrasi(i) + labelContoh;
+  return ilustrasi(i, p.jenis) + labelContoh;
 }
 
 /* ---------- Isi bersama ---------- */
 const IKON_PIN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
-const JANJI = [
-  { ikon: IKON_PIN, judul: 'Survei dulu, tanpa kewajiban membeli', ket: 'Lihat lokasi dan rumah contoh sebelum memutuskan.' },
-  { ikon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>', judul: 'Legalitas dijelaskan sebelum booking', ket: 'Jenis sertifikat dan izin proyek disampaikan jelas.' },
-  { ikon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>', judul: 'Pembayaran hanya ke rekening resmi', ket: 'Atas nama perusahaan, dengan kuitansi resmi.' },
-  { ikon: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M8 15h2M12 15h2"/></svg>', judul: 'Simulasi KPR dibantu marketing', ket: 'Persetujuan KPR sepenuhnya keputusan bank.' },
-];
-const CARA = [
-  ['Pilih perumahan dan tipe', 'Lihat daftar, lalu tekan Tanya harga pada rumah yang Anda minati.'],
-  ['Isi nama dan nomor HP', 'WhatsApp terbuka dengan pesan yang sudah terisi, dan tim marketing menjawab di sana.'],
-  ['Survei lokasi dan rumah contoh', 'Lihat langsung lingkungan dan unitnya, tanpa kewajiban membeli.'],
-  ['Booking', 'Tanda jadi dibayar ke rekening resmi perusahaan, lalu Anda menerima kuitansi.'],
-  ['KPR atau pembayaran, lalu akad', 'Marketing mendampingi sampai akad dan serah terima.'],
-];
-const FAQ = [
-  ['Apakah harga di website sudah final?', 'Harga dan ketersediaan dapat berubah. Angka final disampaikan marketing saat booking.'],
-  ['Apakah bisa dibeli dengan KPR?', 'Bisa. Tim marketing membantu simulasi dan menjelaskan syarat pengajuan KPR. Persetujuan KPR sepenuhnya keputusan bank.'],
-  ['Biaya apa saja di luar harga rumah?', 'Biaya tambahan seperti pajak, notaris, dan biaya KPR dijelaskan secara tertulis oleh marketing sebelum Anda membayar tanda jadi.'],
-  ['Ke mana pembayaran tanda jadi dikirim?', 'Hanya ke rekening resmi atas nama perusahaan, bukan rekening pribadi sales. Anda berhak meminta kuitansi resmi.'],
-  ['Kapan bisa survei?', 'Jadwal survei diatur bersama tim marketing lewat WhatsApp.'],
-];
+const IK_DOK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>';
+const IK_PERISAI = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>';
+const IK_KALK = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M8 15h2M12 15h2"/></svg>';
+// Teks per mode: jual (dijual saja), sewa (disewa saja), campur (keduanya). Situs yang hanya menjual memakai teks yang sama seperti sebelumnya.
+const TEKS = {
+  jual: {
+    caraJudul: 'Cara membeli',
+    janji: [
+      { ikon: IKON_PIN, judul: 'Survei dulu, tanpa kewajiban membeli', ket: `Lihat lokasi dan ${UNIT} contoh sebelum memutuskan.` },
+      { ikon: IK_DOK, judul: 'Legalitas dijelaskan sebelum booking', ket: 'Jenis sertifikat dan izin proyek disampaikan jelas.' },
+      { ikon: IK_PERISAI, judul: 'Pembayaran hanya ke rekening resmi', ket: 'Atas nama perusahaan, dengan kuitansi resmi.' },
+      { ikon: IK_KALK, judul: 'Simulasi KPR dibantu marketing', ket: 'Persetujuan KPR sepenuhnya keputusan bank.' },
+    ],
+    cara: [
+      [`Pilih ${PROP} dan tipe`, `Lihat daftar, lalu tekan Tanya harga pada ${UNIT} yang Anda minati.`],
+      ['Isi nama dan nomor HP', 'WhatsApp terbuka dengan pesan yang sudah terisi, dan tim marketing menjawab di sana.'],
+      [`Survei lokasi dan ${UNIT} contoh`, 'Lihat langsung lingkungan dan unitnya, tanpa kewajiban membeli.'],
+      ['Booking', 'Tanda jadi dibayar ke rekening resmi perusahaan, lalu Anda menerima kuitansi.'],
+      ['KPR atau pembayaran, lalu akad', 'Marketing mendampingi sampai akad dan serah terima.'],
+    ],
+    faq: [
+      ['Apakah harga di website sudah final?', 'Harga dan ketersediaan dapat berubah. Angka final disampaikan marketing saat booking.'],
+      ['Apakah bisa dibeli dengan KPR?', 'Bisa. Tim marketing membantu simulasi dan menjelaskan syarat pengajuan KPR. Persetujuan KPR sepenuhnya keputusan bank.'],
+      [`Biaya apa saja di luar harga ${UNIT}?`, 'Biaya tambahan seperti pajak, notaris, dan biaya KPR dijelaskan secara tertulis oleh marketing sebelum Anda membayar tanda jadi.'],
+      ['Ke mana pembayaran tanda jadi dikirim?', 'Hanya ke rekening resmi atas nama perusahaan, bukan rekening pribadi sales. Anda berhak meminta kuitansi resmi.'],
+      ['Kapan bisa survei?', 'Jadwal survei diatur bersama tim marketing lewat WhatsApp.'],
+    ],
+  },
+  sewa: {
+    caraJudul: 'Cara menyewa',
+    janji: [
+      { ikon: IKON_PIN, judul: 'Survei dulu, tanpa kewajiban menyewa', ket: `Lihat lokasi dan ${UNIT} contoh sebelum memutuskan.` },
+      { ikon: IK_DOK, judul: 'Syarat sewa dijelaskan tertulis', ket: 'Lama sewa, uang jaminan, dan biaya lain disampaikan jelas sebelum Anda membayar.' },
+      { ikon: IK_PERISAI, judul: 'Pembayaran hanya ke rekening resmi', ket: 'Sesuai perjanjian sewa, dengan kuitansi.' },
+      { ikon: IK_KALK, judul: 'Didampingi sampai serah terima', ket: 'Marketing membantu sampai perjanjian ditandatangani dan unit diserahkan.' },
+    ],
+    cara: [
+      [`Pilih ${PROP} dan tipe`, `Lihat daftar, lalu tekan Tanya harga pada ${UNIT} yang Anda minati.`],
+      ['Isi nama dan nomor HP', 'WhatsApp terbuka dengan pesan yang sudah terisi, dan tim marketing menjawab di sana.'],
+      [`Survei lokasi dan ${UNIT}`, 'Lihat langsung lingkungan dan unitnya, tanpa kewajiban menyewa.'],
+      ['Sepakati syarat sewa', 'Lama sewa, uang jaminan, dan biaya lain dijelaskan tertulis sebelum Anda membayar.'],
+      ['Bayar sewa, lalu serah terima', 'Pembayaran ke rekening yang tercantum di perjanjian sewa, dengan kuitansi. Setelah itu unit diserahkan kepada Anda.'],
+    ],
+    faq: [
+      ['Apakah harga sewa di website sudah final?', 'Harga dan ketersediaan dapat berubah. Angka final disampaikan marketing saat booking.'],
+      ['Berapa lama minimal sewa?', 'Berbeda untuk tiap unit. Marketing menjelaskan lama sewa minimal dan cara perpanjangannya sebelum Anda membayar.'],
+      ['Biaya apa saja di luar harga sewa?', 'Uang jaminan, biaya pengelolaan, serta listrik dan air dijelaskan secara tertulis oleh marketing sebelum Anda membayar.'],
+      ['Ke mana pembayaran dikirim?', 'Hanya ke rekening yang tercantum di perjanjian sewa, bukan rekening pribadi sales. Anda berhak meminta kuitansi.'],
+      ['Kapan bisa survei?', 'Jadwal survei diatur bersama tim marketing lewat WhatsApp.'],
+    ],
+  },
+  campur: {
+    caraJudul: 'Cara membeli atau menyewa',
+    janji: [
+      { ikon: IKON_PIN, judul: 'Survei dulu, tanpa kewajiban', ket: `Lihat lokasi dan ${UNIT} contoh sebelum memutuskan.` },
+      { ikon: IK_DOK, judul: 'Legalitas dan syarat dijelaskan dulu', ket: 'Sertifikat dan izin untuk yang dijual, syarat sewa untuk yang disewa.' },
+      { ikon: IK_PERISAI, judul: 'Pembayaran hanya ke rekening resmi', ket: 'Sesuai dokumen resmi, dengan kuitansi.' },
+      { ikon: IK_KALK, judul: 'Didampingi marketing', ket: 'Simulasi KPR untuk pembelian, serah terima untuk sewa. Persetujuan KPR keputusan bank.' },
+    ],
+    cara: [
+      [`Pilih ${PROP}, dijual atau disewa`, `Lihat daftar, lalu tekan Tanya harga pada ${UNIT} yang Anda minati.`],
+      ['Isi nama dan nomor HP', 'WhatsApp terbuka dengan pesan yang sudah terisi, dan tim marketing menjawab di sana.'],
+      [`Survei lokasi dan ${UNIT}`, 'Lihat langsung lingkungan dan unitnya, tanpa kewajiban membeli atau menyewa.'],
+      ['Booking', 'Tanda jadi atau pembayaran awal sewa dibayar ke rekening resmi, lalu Anda menerima kuitansi.'],
+      ['Akad atau perjanjian sewa', 'Marketing mendampingi sampai akad (untuk pembelian) atau serah terima (untuk sewa).'],
+    ],
+    faq: [
+      ['Apakah harga di website sudah final?', 'Harga dan ketersediaan dapat berubah. Angka final disampaikan marketing saat booking.'],
+      ['Apakah bisa dibeli dengan KPR?', 'Untuk properti yang dijual, bisa. Tim marketing membantu simulasi dan menjelaskan syarat pengajuan KPR. Persetujuan KPR sepenuhnya keputusan bank.'],
+      ['Biaya apa saja di luar harga?', 'Untuk pembelian: pajak, notaris, dan biaya KPR. Untuk sewa: uang jaminan dan biaya pengelolaan. Semuanya dijelaskan tertulis oleh marketing sebelum Anda membayar.'],
+      ['Ke mana pembayaran dikirim?', 'Hanya ke rekening resmi yang tercantum di dokumen, bukan rekening pribadi sales. Anda berhak meminta kuitansi.'],
+      ['Kapan bisa survei?', 'Jadwal survei diatur bersama tim marketing lewat WhatsApp.'],
+    ],
+  },
+};
+const JANJI = TEKS[MODE].janji;
 // Bagian dengan judul di kiri dan isi di kanan (di layar lebar); bertumpuk di HP.
 const seksi = (id, judul, intro, isi, garis = true) => `
 <section class="bagian${garis ? ' bagian-garis' : ''}" id="${id}" aria-labelledby="h-${id}">
@@ -166,10 +312,10 @@ const seksi = (id, judul, intro, isi, garis = true) => `
     <div class="badan">${isi}</div>
   </div>
 </section>`;
-const caraSection = () => seksi('cara', 'Cara membeli', '',
-  `<ol class="langkah">${CARA.map(([a, b]) => `<li><strong>${esc(a)}</strong><span>${esc(b)}</span></li>`).join('')}</ol>`);
-const faqSection = () => seksi('faq', 'Pertanyaan yang sering muncul', '',
-  `<div class="tanya-jawab">${FAQ.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>`);
+const caraSection = (mode = MODE) => seksi('cara', TEKS[mode].caraJudul, '',
+  `<ol class="langkah">${TEKS[mode].cara.map(([a, b]) => `<li><strong>${esc(a)}</strong><span>${esc(b)}</span></li>`).join('')}</ol>`);
+const faqSection = (mode = MODE) => seksi('faq', 'Pertanyaan yang sering muncul', '',
+  `<div class="tanya-jawab">${TEKS[mode].faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>`);
 const ctaBlok = (judul, teks, slug) => `
 <section class="masuk" id="cta" aria-labelledby="h-cta"><div class="wrap">
   <h2 id="h-cta">${judul}</h2>
@@ -180,19 +326,20 @@ const ctaBlok = (judul, teks, slug) => `
 /* ---------- Kartu perumahan ---------- */
 function kartu(p, i, base, filter) {
   const lok = lokasiMap.get(p.lokasi);
-  const a = avail(p), habis = a.length === 0, h = minHarga(p);
+  const a = avail(p), habis = a.length === 0, mt = minTipe(p);
   const href = `${base}rumah/${p.slug}/`;
   return `
-<article class="kartu"${filter ? ` data-lokasi="${p.lokasi}"` : ''}>
+<article class="kartu"${filter ? ` data-lokasi="${p.lokasi}" data-jenis="${p.jenis}" data-transaksi="${p.transaksi}"` : ''}>
   <div class="kartu-foto-wrap" style="position:relative">
     <a class="kartu-foto" href="${href}" data-int tabindex="-1" aria-hidden="true">${fotoKartu(p, i, base)}</a>
     <span class="chip-lokasi">${esc(lok.nama)}</span>
   </div>
   <div class="kartu-isi">
+    ${lencana(p)}
     <h3><a href="${href}" data-int>${m(p.nama)}</a></h3>
     <p class="alamat">${m(p.alamat)}</p>
-    <div class="harga-baris">${habis ? '<strong class="habis-teks">Semua tipe terjual</strong>' : `<small>Harga mulai</small><strong>${m(rupiah(h))}</strong>`}</div>
-    <p class="spek-mini"><span>${habis ? p.tipe.length + ' tipe' : a.length + ' tipe tersedia'}</span><span>Tanah mulai ${m(minLt(p) + ' m²')}</span></p>
+    <div class="harga-baris">${habis ? `<strong class="habis-teks">${habisTeks(p)}</strong>` : `<small>${hargaMulaiLabel(p)}</small><strong>${m(hargaTeks(p, mt))}</strong>`}</div>
+    <p class="spek-mini"><span>${habis ? p.tipe.length + ' tipe' : a.length + ' tipe tersedia'}</span><span>${m(ukuranMulai(p))}</span></p>
     <div class="aksi-kartu">
       <a class="tombol tombol-tipis" href="${href}" data-int>Lihat detail</a>
       ${habis ? '' : `<button type="button" class="tombol" data-buka-lead data-p="${p.slug}">Tanya harga</button>`}
@@ -208,7 +355,10 @@ function page({ depth, title, desc, main, canonicalPath, ogImage, pageInfo }) {
   const canonical = C.domain ? C.domain.replace(/\/$/, '') + canonicalPath : '';
   const site = {
     config: { brand: C.brand, appsScriptUrl: C.appsScriptUrl, metaPixelId: C.metaPixelId, defaultSales: C.defaultSales, sales: C.sales, demo: DEMO },
-    perumahan: data.perumahan.map((p) => ({ slug: p.slug, nama: p.nama, lokasi: p.lokasi, tipe: avail(p).map((t) => t.nama) })),
+    perumahan: data.perumahan.map((p) => ({ slug: p.slug, nama: p.nama, lokasi: p.lokasi, jenis: p.jenis, transaksi: p.transaksi, tipe: avail(p).map((t) => t.nama) })),
+    sebut: RUMAH,
+    semuaSewa: MODE === 'sewa',
+    campur,
     page: pageInfo || null,
   };
   return `<!doctype html>
@@ -232,8 +382,8 @@ ${DEMO ? '<div class="contoh" role="note">Halaman contoh. Teks bertanda kuning a
 <header class="atas"><div class="wrap atas-isi">
   <a class="merek" href="${home}" data-int>${m(C.brand)}</a>
   <nav class="menu" aria-label="Utama">
-    <a href="${base}#katalog" data-int>Perumahan</a>
-    <a href="${base}#cara" data-int>Cara membeli</a>
+    <a href="${base}#katalog" data-int>${cap(PROP)}</a>
+    <a href="${base}#cara" data-int>${TEKS[MODE].caraJudul}</a>
     <a href="${base}#kontak" data-int>Kontak</a>
   </nav>
   <button type="button" class="tombol tombol-tipis" data-buka-lead>Tanya harga</button>
@@ -280,7 +430,7 @@ ${main}
 
 <dialog id="privasi" aria-labelledby="h-privasi">
   <h2 id="h-privasi">Kebijakan privasi</h2>
-  <p>Kami mengumpulkan nama, nomor HP, perumahan dan tipe yang Anda pilih, serta asal iklan yang Anda klik. Data ini dipakai untuk menghubungi Anda tentang perumahan yang Anda minati.</p>
+  <p>Kami mengumpulkan nama, nomor HP, ${PROP} dan tipe yang Anda pilih, serta asal iklan yang Anda klik. Data ini dipakai untuk menghubungi Anda tentang ${PROP} yang Anda minati.</p>
   <p>Data disimpan di sistem perusahaan dan hanya dilihat tim marketing serta pengelola proyek. Kami tidak menjual data Anda.</p>
   <p>Situs ini dapat memakai alat pengukur iklan seperti Meta Pixel untuk mengetahui iklan mana yang efektif.</p>
   <p>Untuk meminta data Anda dihapus, hubungi kami di ${m(C.telepon)}.</p>
@@ -298,19 +448,39 @@ ${main}
 function berandaMain() {
   const tiles = data.lokasi.map((l, i) => {
     const n = data.perumahan.filter((p) => p.lokasi === l.slug).length;
-    return `<a class="tile t${i % 4}" href="#katalog" data-lokasi="${l.slug}">${IKON_PIN}<span class="tile-nama">${esc(l.nama)}</span><span class="tile-jumlah">${n} perumahan</span></a>`;
+    return `<a class="tile t${i % 4}" href="#katalog" data-lokasi="${l.slug}">${IKON_PIN}<span class="tile-nama">${esc(l.nama)}</span><span class="tile-jumlah">${n} ${PROP}</span></a>`;
   }).join('');
   const tabs = [`<button type="button" class="tab" aria-pressed="true" data-lokasi="semua">Semua lokasi</button>`]
     .concat(data.lokasi.map((l) => `<button type="button" class="tab" aria-pressed="false" data-lokasi="${l.slug}">${esc(l.nama)}</button>`)).join('');
+  // Pilihan jenis hanya muncul kalau ada lebih dari satu jenis.
+  const tabsJenis = banyakJenis
+    ? [`<button type="button" class="tab" aria-pressed="true" data-jenis="semua" data-nama="${PROP}">Semua jenis (${data.perumahan.length})</button>`]
+      .concat(jenisAda.map((j) => `<button type="button" class="tab" aria-pressed="false" data-jenis="${j}" data-nama="${JENIS[j].nama.toLowerCase()}">${JENIS[j].nama} (${data.perumahan.filter((p) => p.jenis === j).length})</button>`)).join('')
+    : '';
   const cards = data.perumahan.map((p, i) => kartu(p, i, '', true)).join('');
+  // Pilihan Dijual/Disewa hanya muncul kalau situs punya dua-duanya.
+  const nJual = data.perumahan.filter((p) => !sewaP(p)).length, nSewa = data.perumahan.length - nJual;
+  const tabsTransaksi = campur
+    ? `<button type="button" class="tab" aria-pressed="true" data-transaksi="semua" data-akhiran="">Semua (${data.perumahan.length})</button>` +
+      `<button type="button" class="tab" aria-pressed="false" data-transaksi="jual" data-akhiran=" dijual">Dijual (${nJual})</button>` +
+      `<button type="button" class="tab" aria-pressed="false" data-transaksi="sewa" data-akhiran=" disewa">Disewa (${nSewa})</button>`
+    : '';
+  const barisSaring = [];
+  if (campur) barisSaring.push(['transaksi', 'Dijual atau disewa', tabsTransaksi]);
+  if (banyakJenis) barisSaring.push(['jenis', 'Jenis', tabsJenis]);
+  barisSaring.push(['lokasi', 'Lokasi', tabs]);
+  const saring = barisSaring.length > 1
+    ? barisSaring.map(([k, lab, html]) => `<p class="saring-label" id="lab-${k}">${lab}</p>\n  <div class="tabs" role="group" aria-labelledby="lab-${k}">${html}</div>`).join('\n  ')
+    : `<div class="tabs" role="group" aria-label="Saring menurut lokasi">${tabs}</div>`;
+  const pilihan = gabung([...(campur ? ['dijual atau disewa'] : []), ...(banyakJenis ? ['jenis'] : []), 'lokasi']);
   return `
 <section class="hero" aria-labelledby="judul"><div class="wrap hero-grid">
   <div class="hero-teks">
-    <h1 id="judul">Cari rumah di lokasi yang Anda inginkan</h1>
-    <p class="lead">Pilih area, bandingkan perumahan dan harganya, lalu jadwalkan survei bersama tim marketing kami.</p>
+    <h1 id="judul">Cari ${RUMAH_H1} di lokasi yang Anda inginkan</h1>
+    <p class="lead">Pilih area, bandingkan ${PROP} dan harganya, lalu jadwalkan survei bersama tim marketing kami.</p>
     <p class="catatan">Harga dan ketersediaan dapat berubah. Informasi final disampaikan marketing saat booking.</p>
     <div class="aksi">
-      <a class="tombol" href="#katalog">Lihat perumahan</a>
+      <a class="tombol" href="#katalog">Lihat ${PROP}</a>
       <button type="button" class="tombol tombol-tipis" data-buka-lead>Tanya lewat WhatsApp</button>
     </div>
   </div>
@@ -325,12 +495,12 @@ function berandaMain() {
 </div></section>
 
 <section class="bagian bagian-garis" id="katalog" aria-labelledby="h-katalog"><div class="wrap">
-  <h2 id="h-katalog">Perumahan pilihan</h2>
-  <p class="intro">Pilih lokasi untuk menyaring daftar. Harga dan ketersediaan dapat berubah, jadi tanyakan ke marketing untuk angka terbaru.</p>
-  <div class="tabs" role="group" aria-label="Saring menurut lokasi">${tabs}</div>
-  <p class="hitung" id="hitung" aria-live="polite">${data.perumahan.length} perumahan</p>
+  <h2 id="h-katalog">${cap(PROP)} pilihan</h2>
+  <p class="intro">Pilih ${pilihan} untuk menyaring daftar. Harga dan ketersediaan dapat berubah, jadi tanyakan ke marketing untuk angka terbaru.</p>
+  ${saring}
+  <p class="hitung" id="hitung" data-sebut="${PROP}" aria-live="polite">${data.perumahan.length} ${PROP}</p>
   <div class="grid">${cards}</div>
-  <p class="kosong" id="kosong" hidden>Belum ada perumahan di lokasi ini. Hubungi kami untuk info terbaru.</p>
+  <p class="kosong" id="kosong" hidden>Belum ada ${PROP} yang cocok dengan pilihan ini. Hubungi kami untuk info terbaru.</p>
 </div></section>
 ${caraSection()}
 ${faqSection()}
@@ -341,15 +511,16 @@ ${ctaBlok('Belum menemukan yang cocok?', 'Ceritakan kebutuhan Anda. Isi nama dan
 function detailMain(p, idx) {
   const base = '../../';
   const lok = lokasiMap.get(p.lokasi);
-  const a = avail(p), habis = a.length === 0, h = minHarga(p);
+  const a = avail(p), habis = a.length === 0, mt = minTipe(p);
+  const sewa = sewaP(p);
 
   const tipeRows = p.tipe.map((t) => {
     const sold = t.status === 'Terjual';
     return `<li${sold ? ' class="habis"' : ''}>
         <span class="nama">${m(t.nama)}</span>
-        <span class="harga">${m(rupiah(t.harga))}</span>
-        <span class="spek"${dc}><span>Tanah ${t.lt} m²</span><span>Bangunan ${t.lb} m²</span><span>${t.kt} kamar tidur</span><span>${t.km} kamar mandi</span></span>
-        <span class="status${sold ? ' habis' : ''}">${esc(t.status || 'Tersedia')}</span>
+        <span class="harga">${m(hargaTeks(p, t))}</span>
+        <span class="spek"${dc}>${spekTipe(p, t).map((x) => `<span>${x}</span>`).join('')}</span>
+        <span class="status${sold ? ' habis' : ''}">${esc(sold && sewa ? 'Sudah disewa' : (t.status || 'Tersedia'))}</span>
         ${sold ? '' : `<button type="button" class="tombol tombol-tipis tanya" data-buka-lead data-p="${p.slug}" data-t="${esc(t.nama)}">Tanya tipe ini</button>`}
       </li>`;
   }).join('');
@@ -362,7 +533,7 @@ function detailMain(p, idx) {
   if (p.foto && p.foto.length) {
     galeri = p.foto.map((f, k) => `<figure><img src="${base}foto/${p.slug}/${esc(f.file)}" alt="${esc(`${p.nama}, foto ${k + 1}`)}" width="${f.w}" height="${f.h}" loading="${k ? 'lazy' : 'eager'}" decoding="async"${k ? '' : ' fetchpriority="high"'}></figure>`).join('');
   } else {
-    galeri = `<figure>${ilustrasi(idx)}${labelContoh}</figure>` +
+    galeri = `<figure>${ilustrasi(idx, p.jenis)}${labelContoh}</figure>` +
       ['Foto 2: ruang tamu', 'Foto 3: kamar tidur', 'Foto 4: lingkungan'].map((t) => `<figure><div class="ph"><mark class="isi">${t}</mark></div></figure>`).join('');
   }
 
@@ -376,15 +547,16 @@ function detailMain(p, idx) {
     ? `<a class="tombol tombol-tipis peta" href="${esc(p.maps)}" target="_blank" rel="noopener">Buka di Google Maps</a>`
     : (DEMO ? '<p class="peta"><mark class="isi">Link Google Maps belum dipasang.</mark></p>' : '');
 
-  const lain = [
-    ...data.perumahan.filter((x) => x !== p && x.lokasi === p.lokasi),
-    ...data.perumahan.filter((x) => x !== p && x.lokasi !== p.lokasi),
-  ].slice(0, 3);
+  // Yang serupa didahulukan: sejenis dan selokasi, lalu sejenis, lalu selokasi, lalu sisanya.
+  const skor = (x) => (x.jenis === p.jenis ? 2 : 0) + (x.lokasi === p.lokasi ? 1 : 0);
+  const lain = data.perumahan.filter((x) => x !== p)
+    .sort((x, y) => skor(y) - skor(x) || data.perumahan.indexOf(x) - data.perumahan.indexOf(y))
+    .slice(0, 3);
   const lainSec = lain.length ? `
 <section class="bagian bagian-garis" aria-labelledby="h-lain"><div class="wrap">
-  <h2 id="h-lain">Perumahan lainnya</h2>
+  <h2 id="h-lain">${cap(PROP)} lainnya</h2>
   <div class="grid">${lain.map((x) => kartu(x, data.perumahan.indexOf(x), base, false)).join('')}</div>
-  <p style="margin-top:20px"><a class="tautan" href="${base}#katalog" data-int>Lihat semua perumahan</a></p>
+  <p style="margin-top:20px"><a class="tautan" href="${base}#katalog" data-int>Lihat semua ${PROP}</a></p>
 </div></section>` : '';
 
   return `
@@ -396,9 +568,9 @@ function detailMain(p, idx) {
   </nav>
 </div>
 <section class="judul-blok"><div class="wrap">
-  <h1>${m(p.nama)}</h1>
+  ${lencana(p) ? lencana(p) + '\n  ' : ''}<h1>${m(p.nama)}</h1>
   <p class="alamat">${m(p.alamat)}</p>
-  ${habis ? '<p class="harga-blok"><strong>Semua tipe terjual</strong></p>' : `<p class="harga-blok"><small>Harga mulai</small><strong>${m(rupiah(h))}</strong></p>`}
+  ${habis ? `<p class="harga-blok"><strong>${habisTeks(p)}</strong></p>` : `<p class="harga-blok"><small>${hargaMulaiLabel(p)}</small><strong>${m(hargaTeks(p, mt))}</strong></p>`}
   <p class="ringkas">${m(p.ringkas)}</p>
   <div class="aksi">
     ${habis ? '' : `<button type="button" class="tombol" data-buka-lead data-p="${p.slug}">Jadwalkan survei</button>`}
@@ -409,16 +581,16 @@ function detailMain(p, idx) {
 
 ${seksi('ringkas', 'Ringkasan proyek', '', `<dl class="fakta">
     <div><dt>Lokasi</dt><dd>${m(p.alamat)}</dd></div>
-    <div><dt>Developer</dt><dd>${m(p.developer)}</dd></div>
-    <div><dt>Sertifikat</dt><dd>${m(p.sertifikat)}</dd></div>
+    <div><dt>${sewa ? 'Pengelola' : 'Developer'}</dt><dd>${m(p.developer)}</dd></div>
+    ${p.sertifikat ? `<div><dt>Sertifikat</dt><dd>${m(p.sertifikat)}</dd></div>` : ''}
     ${p.kantor ? `<div><dt>Kantor pemasaran</dt><dd>${m(p.kantor)}</dd></div>` : ''}
   </dl>`, false)}
-${seksi('tipe', 'Tipe rumah dan harga', 'Harga dan ketersediaan dapat berubah. Tanyakan ke marketing untuk angka terbaru.', `<ul class="tipe">${tipeRows}</ul>`)}
-${fas ? seksi('fasilitas', 'Fasilitas', 'Hanya fasilitas yang benar-benar tersedia di perumahan ini.', `<ul class="fasilitas">${fas}</ul>`) : ''}
+${seksi('tipe', `${JENIS[p.jenis].tipeNama} dan harga${sewa ? ' sewa' : ''}`, 'Harga dan ketersediaan dapat berubah. Tanyakan ke marketing untuk angka terbaru.', `<ul class="tipe">${tipeRows}</ul>`)}
+${fas ? seksi('fasilitas', 'Fasilitas', `Hanya fasilitas yang benar-benar tersedia di ${JENIS[p.jenis].nama.toLowerCase()} ini.`, `<ul class="fasilitas">${fas}</ul>`) : ''}
 ${videoSec}
 ${(akses || peta) ? seksi('lokasi', 'Lokasi dan akses', '', `${akses ? `<dl class="fakta">${akses}</dl>\n  ` : ''}${peta}`) : ''}
-${caraSection()}
-${faqSection()}
+${caraSection(sewa ? 'sewa' : 'jual')}
+${faqSection(sewa ? 'sewa' : 'jual')}
 ${lainSec}
 ${ctaBlok(`Jadwalkan survei ${m(p.nama)}`, 'Isi nama dan nomor HP, lalu WhatsApp terbuka dengan pesan yang sudah terisi.', habis ? '' : p.slug)}`;
 }
@@ -443,8 +615,8 @@ const namaLokasi = data.lokasi.map((l) => l.nama).join(', ');
 const ogHome = C.ogImage || '';
 writeFileSync(join(OUT, 'index.html'), page({
   depth: 0,
-  title: `${C.brand} - Rumah dijual di ${namaLokasi}`,
-  desc: 'Pilih lokasi, lihat perumahan dan harganya, lalu jadwalkan survei lewat WhatsApp.',
+  title: `${C.brand} - ${cap(RUMAH)} ${AKSI} di ${namaLokasi}`,
+  desc: `Pilih lokasi, lihat ${PROP} dan harganya, lalu jadwalkan survei lewat WhatsApp.`,
   main: berandaMain(),
   canonicalPath: '/',
   ogImage: ogHome,
@@ -452,18 +624,18 @@ writeFileSync(join(OUT, 'index.html'), page({
 
 data.perumahan.forEach((p, idx) => {
   const lok = lokasiMap.get(p.lokasi);
-  const h = minHarga(p);
+  const mt = minTipe(p);
   const foto0 = p.og && C.domain ? `${C.domain.replace(/\/$/, '')}/foto/${p.slug}/${p.og}` : ogHome;
   const dir = join(OUT, 'rumah', p.slug);
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, 'index.html'), page({
     depth: 2,
-    title: `${p.nama} - Rumah di ${lok.nama} | ${C.brand}`,
-    desc: `${p.ringkas}${h ? ' Harga mulai ' + rupiah(h) + '.' : ''}`.slice(0, 200),
+    title: `${p.nama} - ${({ perumahan: 'Rumah', apartemen: 'Apartemen', ruko: 'Ruko' })[p.jenis]}${sewaP(p) ? ' disewakan' : ''} di ${lok.nama} | ${C.brand}`,
+    desc: `${p.ringkas}${mt ? ` ${hargaMulaiLabel(p)} ${hargaTeks(p, mt)}.` : ''}`.slice(0, 200),
     main: detailMain(p, idx),
     canonicalPath: `/rumah/${p.slug}/`,
     ogImage: foto0,
-    pageInfo: { slug: p.slug, lokasi: p.lokasi },
+    pageInfo: { slug: p.slug, lokasi: p.lokasi, jenis: p.jenis, transaksi: p.transaksi },
   }));
 });
 
@@ -483,8 +655,10 @@ renameSync(OUT, FINAL);
 
 console.log(`Selesai: ${1 + data.perumahan.length} halaman di ${FINAL} (${DEMO ? 'mode contoh' : 'mode tayang'})`);
 console.log(`Foto: ${jumlahFoto} file, total ${(byteFoto / 1024 / 1024).toFixed(1)} MB ${sharp ? 'setelah dikecilkan' : '(tidak dikecilkan)'}`);
+console.log('Jenis: ' + jenisAda.map((j) => `${JENIS[j].nama} (${data.perumahan.filter((p) => p.jenis === j).length})`).join(', '));
+console.log('Transaksi: ' + [['Dijual', adaJual ? data.perumahan.filter((p) => !sewaP(p)).length : 0], ['Disewa', data.perumahan.filter(sewaP).length]].filter(([, n]) => n).map(([k, n]) => `${k} (${n})`).join(', '));
 console.log('Lokasi: ' + data.lokasi.map((l) => `${l.nama} (${data.perumahan.filter((p) => p.lokasi === l.slug).length})`).join(', '));
 for (const p of data.perumahan) {
   const a = avail(p).length;
-  console.log(`  - ${p.slug}: ${p.nama}, ${p.lokasiNama}, ${a} dari ${p.tipe.length} tipe tersedia, ${p.foto.length} foto${p.youtube ? ', ada video' : ''}`);
+  console.log(`  - ${p.slug}: ${p.nama} [${p.jenis}${sewaP(p) ? ', sewa' : ''}], ${p.lokasiNama}, ${a} dari ${p.tipe.length} tipe tersedia, ${p.foto.length} foto${p.youtube ? ', ada video' : ''}`);
 }

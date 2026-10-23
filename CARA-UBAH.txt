@@ -1,8 +1,8 @@
 PANDUAN MINGGUAN: MENAMBAH RUMAH DAN MENGGANTI FOTO
 ====================================================
 
-Prinsipnya: satu rumah = satu folder di dalam folder "perumahan".
-Isi folder itu hanya dua hal: satu file info.txt (data rumah) dan foto-fotonya.
+Prinsipnya: satu properti (perumahan, apartemen, atau ruko; dijual atau disewa) = satu folder di dalam folder "perumahan".
+Isi folder itu hanya dua hal: satu file info.txt (data properti) dan foto-fotonya.
 Foto tidak perlu dikecilkan atau diberi nama khusus. Situs mengecilkannya sendiri,
 menegakkan foto yang miring, dan menghapus data lokasi (GPS) dari foto.
 
@@ -37,8 +37,8 @@ Tips foto:
    baris "ringkas:" di info.txt, jangan dicampur tanpa keterangan.
 
 
-B. MENAMBAH RUMAH BARU
-----------------------
+B. MENAMBAH PROPERTI BARU (PERUMAHAN, APARTEMEN, RUKO; DIJUAL ATAU DISEWA)
+---------------------------------------------------------------------------
 1. Di halaman utama repository tekan Add file > Create new file.
    Di kolom nama file ketik:   perumahan/nama-rumah-baru/info.txt
    (mengetik garis miring / otomatis membuat folder. Lebih aman pakai huruf kecil dan tanda hubung.)
@@ -52,6 +52,8 @@ Jangan mengganti nama folder setelah iklan berjalan, karena link iklannya akan r
 Contoh isi info.txt:
 
     nama: Griya Hijau Residence
+    jenis: perumahan
+    transaksi: jual
     lokasi: Depok
     alamat: Sawangan, Depok
     developer: PT Contoh Developer
@@ -67,15 +69,65 @@ Contoh isi info.txt:
     akses:
     - Stasiun Contoh | 7 menit
 
+Contoh tipe untuk apartemen (tulis jenis: apartemen) dan ruko (tulis jenis: ruko):
+
+    tipe:
+    - Studio 24 | 780 juta | LB 24 | KT 0 | KM 1 | Tersedia
+    - Tipe 2BR 48 | 1,45 miliar | LB 48 | KT 2 | KM 1 | Tersedia
+
+    tipe:
+    - Ruko 2 Lantai | 2,1 miliar | LT 60 | LB 120 | Lantai 2 | Tersedia
+    - Ruko 3 Lantai | 3,4 miliar | LT 84 | LB 240 | Lantai 3 | KM 3 | Tersedia
+
+Contoh properti yang DISEWAKAN (tambahkan baris transaksi: sewa, dan tulis harga beserta satuan waktunya):
+
+    nama: Sudirman Suites
+    jenis: apartemen
+    transaksi: sewa
+    lokasi: Jakarta
+    alamat: Kebayoran, Jakarta Selatan
+    developer: Bapak Budi
+    ringkas: Apartemen furnished yang disewakan.
+    tipe:
+    - Studio 24 | 4,5 juta/bulan | LB 24 | KT 0 | KM 1 | Tersedia
+    - Tipe 2BR 48 | 55 juta/tahun | LB 48 | KT 2 | KM 1 | Tersedia
+    - Tipe 3BR 72 | 12 juta/bulan | LB 72 | KT 3 | KM 2 | Disewa
+
 Aturan singkat:
  - Wajib diisi: nama, lokasi, alamat, developer, sertifikat, ringkas, dan minimal satu tipe.
-   Yang lain boleh dihapus atau dikosongkan: kantor, fasilitas, youtube, maps, akses, urutan.
+   Yang lain boleh dihapus atau dikosongkan: jenis, transaksi, kantor, fasilitas, youtube, maps, akses, urutan.
+   Pada properti sewa, sertifikat juga boleh dikosongkan. Kolom developer boleh diisi nama pengelola atau pemilik
+   (kata "pengelola:" atau "pemilik:" juga diterima sebagai pengganti "developer:").
+ - jenis: perumahan, apartemen, atau ruko. Kalau baris jenis dihapus, dianggap perumahan.
+   Kalau situs punya lebih dari satu jenis, beranda otomatis menampilkan pilihan jenis (Semua jenis,
+   Perumahan, Apartemen, Ruko) di samping pilihan lokasi. Kalau hanya ada satu jenis, pilihan itu tidak muncul.
+   Link iklan bisa langsung membuka daftar yang sudah disaring: namadomain.com/#apartemen atau namadomain.com/#ruko.
  - lokasi: tulis nama yang sama persis untuk rumah di area yang sama. Pilihan lokasi di beranda
    dibuat otomatis dari isian ini, jadi salah ketik (misalnya Depook) akan muncul sebagai lokasi baru.
+ - transaksi: jual (dijual) atau sewa (disewa). Kalau baris transaksi dihapus, dianggap jual.
+   Kalau situs punya properti dijual DAN disewa, beranda otomatis menampilkan pilihan "Dijual atau disewa"
+   (Semua, Dijual, Disewa), dan kartu diberi lencana "Dijual" atau "Disewa". Kalau semuanya sama, pilihan itu tidak muncul.
+   Link iklan bisa langsung membuka daftar sewa: namadomain.com/#sewa (atau #jual untuk yang dijual).
+   Satu properti hanya boleh satu transaksi. Kalau ruko yang sama ada yang dijual dan ada yang disewa,
+   buat dua folder, satu untuk masing-masing.
+   Untuk properti sewa, teks situs otomatis berganti: "Sewa mulai", "Cara menyewa", pertanyaan umum tentang sewa
+   (tanpa KPR), "Pengelola" menggantikan "Developer", dan pesan WhatsApp berbunyi "tertarik menyewa".
+   Baris sertifikat boleh dikosongkan untuk properti sewa (untuk properti dijual tetap wajib).
  - Harga boleh ditulis 850 juta, 1,05 miliar, Rp 850.000.000, atau 850000000.
- - Satuan tipe: LT luas tanah, LB luas bangunan, KT kamar tidur, KM kamar mandi (semua wajib).
+ - Harga sewa WAJIB memakai satuan waktu: 25 juta/tahun, 3,5 juta/bulan, 3,5 juta per bulan, atau 2 jt/bln.
+   Harga sewa tanpa /bulan atau /tahun ditolak saat build, dan sebaliknya harga jual tidak boleh memakai /bulan atau /tahun.
+   Kalau satu properti sewa punya tipe dengan satuan berbeda (ada yang per bulan, ada yang per tahun), boleh.
+   Harga "mulai" di kartu dihitung adil dengan membandingkan per bulan.
+ - Satuan tipe: LT luas tanah, LB luas bangunan (atau luas unit), KT kamar tidur, KM kamar mandi, Lantai jumlah lantai.
+   Yang wajib tergantung jenis:
+      perumahan: LT, LB, KT, KM          contoh: LT 60 | LB 30 | KT 2 | KM 1
+      apartemen: LB, KT, KM              contoh: LB 36 | KT 2 | KM 1   (studio: KT 0)
+      ruko:      LT, LB, Lantai          contoh: LT 72 | LB 180 | Lantai 3
+   Ukuran lain boleh ditambah kalau relevan, misalnya KM pada ruko.
  - Status: Tersedia atau Terjual. Tipe Terjual tidak punya tombol tanya. Kalau status dikosongkan,
    dianggap Tersedia. Tulisan lain (misalnya Indent) juga dianggap masih tersedia.
+   Untuk properti sewa, tulis Disewa (atau Terjual, Penuh) untuk unit yang sudah ada penyewanya.
+   Di situs tampil "Sudah disewa" dan tombol tanyanya hilang.
  - youtube: tempel link videonya. Unggah video ke YouTube dengan pilihan Tidak Publik (Unlisted).
  - urutan: angka kecil tampil lebih dulu di beranda. Kalau tidak diisi, urut menurut nama folder.
  - Baris yang diawali tanda # hanya catatan.
@@ -85,7 +137,8 @@ Aturan singkat:
 C. MENGUBAH HARGA, STATUS TERJUAL, FASILITAS, DLL
 -------------------------------------------------
 Buka info.txt rumah itu, tekan ikon pensil, ubah isinya, lalu Commit changes.
-Contoh menandai satu tipe terjual: ganti kata Tersedia di akhir baris tipe itu menjadi Terjual.
+Contoh menandai satu tipe terjual: ganti kata Tersedia di akhir baris tipe itu menjadi Terjual (untuk sewa: Disewa).
+Contoh menaikkan harga sewa: ubah angkanya saja, satuan /bulan atau /tahun tetap ditulis.
 
 
 D. MENGHAPUS RUMAH
@@ -96,7 +149,7 @@ tidak ada, hapus file di dalamnya satu per satu), lalu Commit changes.
 
 E. KALAU BUILD GAGAL
 --------------------
-Kalau ada isian yang salah (harga tidak terbaca, label LT/LB/KT/KM kurang, foto rusak, dll),
+Kalau ada isian yang salah (harga tidak terbaca, harga sewa tanpa /bulan atau /tahun, label LT/LB/KT/KM kurang, foto rusak, dll),
 build berhenti dan menampilkan SEMUA masalahnya sekaligus, lengkap dengan nama folder dan nomor baris.
 Cara melihatnya: Cloudflare > proyek Anda > Deployments > klik deployment yang gagal > Build log.
 Cari tulisan "GALAT DATA". Perbaiki isiannya di GitHub, lalu Commit changes lagi.

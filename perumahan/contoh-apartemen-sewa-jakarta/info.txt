@@ -1,0 +1,17 @@
+# Data contoh apartemen yang DISEWAKAN. Ganti dengan data asli, atau hapus folder ini kalau sudah tidak dipakai.
+nama: Contoh Sudirman Suites
+jenis: apartemen
+transaksi: sewa
+lokasi: Jakarta
+alamat: Kecamatan Contoh, Jakarta Selatan
+developer: Nama Pengelola atau Pemilik Unit
+ringkas: Apartemen furnished yang disewakan, dengan tiga pilihan unit. Ganti kalimat ini dengan deskripsi singkat yang benar.
+kantor: Alamat kantor pemasaran
+fasilitas: Kolam renang, Pusat kebugaran, Lobi dan resepsionis, Area parkir, Keamanan 24 jam
+youtube: 
+maps: 
+urutan: 8
+tipe:
+- Studio 24 | 4,5 juta/bulan | LB 24 | KT 0 | KM 1 | Tersedia
+- Tipe 2BR 48 | 55 juta/tahun | LB 48 | KT 2 | KM 1 | Tersedia
+- Tipe 3BR 72 | 12 juta/bulan | LB 72 | KT 3 | KM 2 | Disewa

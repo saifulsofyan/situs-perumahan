@@ -50,6 +50,10 @@ Gunakan akun Google milik Anda atau perusahaan, BUKAN akun sales.
       b. Di situs: isi form dengan nomor Anda sendiri. Pastikan barisnya muncul di Sheet DAN WhatsApp terbuka
          ke sales yang benar dengan kode yang sama.
 
+Lead untuk properti yang DISEWAKAN ditandai otomatis: kolom Tipe di lembar Leads diawali kata "Sewa"
+(contoh: "Sewa: Studio 24", atau hanya "Sewa" kalau pengunjung belum memilih tipe). Lead untuk properti dijual
+isi kolom Tipe-nya apa adanya. Tidak perlu mengubah apa pun di Apps Script untuk fitur ini.
+
 Nomor sales ada di dua tempat. Nomor di lembar Sales yang dipakai saat skrip aktif. Nomor di data/rumah.json
 hanya cadangan kalau skrip lambat atau mati. Samakan keduanya.
 
@@ -114,8 +118,11 @@ F. KETERBATASAN YANG PERLU ANDA TAHU
    pengingat, dan cek acak. Aturan utamanya: sales tidak boleh diberi akses ke Sheet.
  - Email dari skrip memakai kuota harian Google. Skrip memeriksa sisa kuota, dan kalau habis lead tidak ditandai
    sudah diingatkan sehingga dicoba lagi jam berikutnya.
- - Pertama kali tayang, skrip dapat lambat beberapa detik (Apps Script perlu "bangun"). Itu sebabnya ada jalur
-   cadangan di atas.
+ - Apps Script yang lama tidak dipakai dapat lambat beberapa detik saat pertama kali dipanggil (perlu "bangun").
+   Situs membangunkannya lebih dulu ketika pengunjung mulai menggulir atau membuka formulir, jadi biasanya
+   sudah siap saat formulir dikirim. Kalau tetap terlambat, jalur cadangan di atas bekerja dan lead tetap
+   tercatat dengan keterangan "cadangan (server lambat)". Lead yang kebetulan masuk lewat jalur ini dikirim ke
+   nomor bawaan situs, bukan ke sales hasil bergilir.
  - Skrip ini diuji dengan tiruan layanan Google dan dengan formulir situs sungguhan di komputer pengembang,
    bukan di Google langsung. Uji pertama di Sheet Anda (langkah 9) adalah ujian yang sebenarnya.
  - Nomor HP pengunjung adalah data pribadi. Jangan membagikan Sheet ini ke banyak orang. Kebijakan privasi di
