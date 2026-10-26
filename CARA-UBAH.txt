@@ -243,3 +243,7 @@ Kalau satu proyek punya beberapa tipe dan Anda ingin tiap tipe punya kartu, hala
    perumahan/shila-at-sawangan-depok/aspen/info.txt), isi, lalu unggah foto tipe ke folder itu.
  - Di info.txt kawasan JANGAN menulis tipe: dan cicilan:. Dua kunci itu hanya ditulis di info.txt tiap tipe.
  - Jangan mengganti nama folder tipe setelah iklan berjalan, karena link iklannya akan rusak.
+ - Di info.txt tipe boleh ada tentang: Judul | uraian untuk bagian "Tentang" di halaman tipe itu (uraian lebih panjang dari ringkas:).
+ - Fasilitas yang belum selesai ditulis dengan keterangan di ujung, contoh: Aspen Medical (sedang dibangun).
+   Di halaman, keterangan itu tampil sebagai lencana kuning kecil. Keterangan yang dikenali: sedang dibangun,
+   dalam pembangunan, akan dibangun, segera dibangun, rencana.

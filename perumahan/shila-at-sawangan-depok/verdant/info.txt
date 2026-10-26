@@ -1,6 +1,6 @@
 # Tipe Verdant. Kunci yang tidak ditulis di sini diambil dari info.txt kawasan di folder atasnya.
 tipe:
-- Verdant | 1,9 miliar | LT 98 | LB 110 | KT 3 | KM 3 | Lantai 2 | Tersedia
-ringkas: Verdant adalah hunian dua lantai bergaya modern di kawasan Shila at Sawangan, Depok, dengan akses menuju Tol Pamulang dan Sawangan. Di sekitarnya ada pilihan kuliner, pertokoan, dan fasilitas olahraga.
+- Verdant | 1,6 miliar | LT 98 | LB 110 | KT 3 | KM 3 | Lantai 1 | Tersedia
+ringkas: Verdant adalah hunian satu lantai bergaya modern di kawasan Shila at Sawangan, Depok, dengan akses menuju Tol Pamulang dan Sawangan. Di sekitarnya ada pilihan kuliner, pertokoan, dan fasilitas olahraga.
 cicilan: 8 juta/bulan | tenor 25 tahun, DP 5%
 urutan: 1

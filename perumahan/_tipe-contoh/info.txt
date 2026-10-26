@@ -15,6 +15,10 @@ ringkas: [ISI] Satu atau dua kalimat khusus tipe ini. Hanya tulis yang benar.
 # Cicilan khusus tipe ini (jual saja). Contoh: cicilan: 9,5 juta/bulan | tenor 20 tahun, DP 10%. Boleh dihapus.
 cicilan: [ISI] 8 juta/bulan | tenor 25 tahun, DP 5%
 
+# Opsional: uraian lebih panjang yang tampil sebagai bagian "Tentang" di halaman tipe ini. Bentuk: Judul | uraian.
+# Tanpa tanda | seluruh teks dianggap uraian dan judulnya otomatis "Tentang <nama tipe>". Tulis hanya fakta yang benar.
+# tentang: Judul uraian | Uraian satu paragraf, maksimal 1500 huruf.
+
 # Opsional: video khusus tipe ini. Kalau dihapus, dipakai video proyek.
 # youtube:
 

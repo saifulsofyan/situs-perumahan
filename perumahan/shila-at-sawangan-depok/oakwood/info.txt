@@ -1,0 +1,8 @@
+# Tipe Oakwood. Kunci yang tidak ditulis di sini diambil dari info.txt kawasan di folder atasnya.
+tipe:
+- Oakwood | 1,9 miliar | LT 112 | LB 136 | KT 3 | KM 3 | Lantai 2 | Tersedia
+ringkas: Oakwood adalah hunian modern dua lantai di kawasan Shila at Sawangan, Depok, dengan desain elegan, tata ruang fungsional, dan akses menuju Tol Pamulang dan Sawangan. Di sekitarnya ada pilihan kuliner, pertokoan, dan fasilitas olahraga.
+tentang: Oakwood – Hunian Modern Dua Lantai untuk Keluarga | Oakwood dirancang untuk keluarga yang menginginkan rumah modern dengan ruang yang lega. Bangunan dua lantai seluas 136 m² berdiri di atas tanah 112 m², dengan 3 kamar tidur dan 3 kamar mandi. Desainnya elegan dengan tata ruang fungsional, sehingga setiap sudut nyaman dipakai bersama keluarga. Berlokasi di kawasan Shila at Sawangan, Oakwood menawarkan lingkungan asri dan akses menuju Tol Pamulang dan Sawangan. Penghuni dapat memakai fasilitas kawasan: One-Gate System, The Creek untuk jogging pagi, aula serbaguna untuk acara keluarga, area barbecue, dan lapangan basket.
+cicilan: 10 juta/bulan | tenor 25 tahun, DP 5%
+youtube: https://www.youtube.com/watch?v=u3nwaQPPlWU
+urutan: 2

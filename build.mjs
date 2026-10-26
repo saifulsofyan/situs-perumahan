@@ -216,6 +216,7 @@ const IKON = {
 // Ikon fasilitas dipilih dari kata di namanya. Tidak cocok dengan apa pun: tanda centang.
 const IKON_FASILITAS = [
   [/gate|gerbang|cctv|keaman|satpam|security|24 jam|portal/i, 'aman'],
+  [/medical|klinik|rumah sakit|\brs\b|kesehatan|puskesmas|apotek/i, 'kesehatan'],
   [/musala|mushola|masjid|ibadah/i, 'bulan'],
   [/barbecue|bbq|panggang|api unggun|grill/i, 'api'],
   [/kolam|renang|pool|jacuzzi/i, 'kolam'],
@@ -616,7 +617,13 @@ function detailMain(p, idx) {
       </li>`;
   }).join('');
 
-  const fas = (p.fasilitas || []).map((f) => `<li><span class="ikon-bulat">${ikonFasilitas(f)}</span><span>${m(f)}</span></li>`).join('');
+  // Keterangan di ujung nama fasilitas, contoh "Aspen Medical (sedang dibangun)", tampil sebagai lencana kecil supaya jelas belum jadi.
+  const RE_BELUM = /^(.*?)\s*\((sedang dibangun|sedang dalam pembangunan|dalam pembangunan|akan dibangun|segera dibangun|rencana)\)\s*$/i;
+  const fas = (p.fasilitas || []).map((f) => {
+    const b = f.match(RE_BELUM);
+    return `<li><span class="ikon-bulat">${ikonFasilitas(b ? b[1] : f)}</span><span>${m(b ? b[1] : f)}${b ? ` <em class="belum">${esc(b[2])}</em>` : ''}</span></li>`;
+  }).join('');
+  const adaBelum = (p.fasilitas || []).some((f) => RE_BELUM.test(f));
   // Tanpa isian "akses:" di info.txt: mode contoh menampilkan baris "xx menit" bertanda kuning, mode tayang menyembunyikannya.
   const aksesData = p.akses || (DEMO ? DEFAULT_AKSES : []);
   const kelompok = Object.entries(KATEGORI_AKSES)
@@ -698,6 +705,7 @@ function detailMain(p, idx) {
 </div></section>
 <div class="galeri" tabindex="0" role="region" aria-label="Galeri foto, geser ke samping">${galeri}</div>
 
+${p.tentangIsi ? seksi('tentang', m(p.tentangJudul), '', `<p class="tentang">${m(p.tentangIsi)}</p>`, false) : ''}
 ${seksi('ringkas', 'Ringkasan proyek', '', `<dl class="fakta">
     <div><dt>Lokasi</dt><dd>${m(p.alamat)}</dd></div>
     <div><dt>${sewa ? 'Pengelola' : 'Developer'}</dt><dd>${m(p.developer)}</dd></div>
@@ -706,7 +714,7 @@ ${seksi('ringkas', 'Ringkasan proyek', '', `<dl class="fakta">
   </dl>`, false)}
 ${seksi('tipe', `${JENIS[p.jenis].tipeNama} dan harga${sewa ? ' sewa' : ''}`, 'Harga dan ketersediaan dapat berubah. Tanyakan ke marketing untuk angka terbaru.', `<ul class="tipe">${tipeRows}</ul>`)}
 ${saudaraSec}
-${fas ? seksi('fasilitas', 'Fasilitas', `Hanya fasilitas yang benar-benar tersedia di ${JENIS[p.jenis].nama.toLowerCase()} ini.`, `<ul class="fasilitas">${fas}</ul>`) : ''}
+${fas ? seksi('fasilitas', 'Fasilitas', adaBelum ? 'Fasilitas yang belum selesai diberi keterangan.' : `Hanya fasilitas yang benar-benar tersedia di ${JENIS[p.jenis].nama.toLowerCase()} ini.`, `<ul class="fasilitas">${fas}</ul>`) : ''}
 ${videoSec}
 ${kelompok.length ? `
 <section class="bagian sekitar" id="lokasi" aria-labelledby="h-lokasi">
