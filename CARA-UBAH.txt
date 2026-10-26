@@ -209,3 +209,16 @@ Pasang Node.js, lalu di folder ini jalankan:
    npm install
    npm run build
 Hasilnya ada di folder situs/. Folder ini tidak perlu diunggah ke GitHub karena Cloudflare membuatnya sendiri.
+
+
+KECEPATAN SITUS DAN JUMLAH PROYEK
+- Setiap foto dibuat dua ukuran otomatis: ukuran besar untuk layar lebar dan ukuran kecil untuk HP.
+  Pengunjung HP hanya mengunduh yang kecil, jadi halaman tetap ringan walau fotonya banyak.
+- File tampilan (style.css dan app.js) memakai kode versi di alamatnya. Setiap kali isinya berubah,
+  pengunjung otomatis memuat yang baru, tidak lagi menampilkan tampilan lama dari penyimpanan peramban.
+- Setelah upload ke GitHub, tunggu 1 sampai 3 menit sampai proses di Cloudflare Pages berstatus Success
+  (menu Workers & Pages > situs Anda > Deployments). Kalau statusnya Failed, buka log-nya dan kirim ke Claude.
+- Simulasi 40 proyek (360 foto) selesai dibangun sekitar 1 menit. Batas Cloudflare Pages 20.000 file
+  per situs dan 20 menit untuk proses build; satu proyek memakai sekitar 21 file. Jadi ratusan proyek masih muat.
+- Upload ke GitHub lewat web: maksimal 100 file per kali upload dan 25 MB per file. Tambahkan 3 sampai 5
+  proyek per upload supaya mudah dicek.

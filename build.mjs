@@ -3,11 +3,15 @@
 // Hasil ada di folder "situs/" (Cloudflare Pages membuatnya sendiri tiap kali ada perubahan di GitHub).
 import { readFileSync, writeFileSync, mkdirSync, cpSync, rmSync, existsSync, readdirSync, renameSync } from 'node:fs';
 import { join, dirname } from 'node:path';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { parseInfo, slugify, JENIS, KATEGORI_AKSES } from './lib/info.mjs';
 import { daftarFoto, prosesFoto, muatSharp } from './lib/foto.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
+// Kode isi file tampilan dan skrip, ditempel di alamatnya (?v=...), supaya peramban pasti memuat yang baru setelah ada perubahan.
+const verAset = (nama) => createHash('sha1').update(readFileSync(join(ROOT, 'assets', nama))).digest('hex').slice(0, 8);
+const V_CSS = verAset('style.css'), V_JS = verAset('app.js');
 const FINAL = process.env.OUT || join(ROOT, 'situs');
 const OUT = FINAL + '.tmp'; // ditulis dulu di sini; baru menggantikan hasil lama kalau semuanya berhasil
 const data = JSON.parse(readFileSync(join(ROOT, 'data', 'rumah.json'), 'utf8'));
@@ -258,9 +262,11 @@ ${windows}
 </svg>`;
 }
 const labelContoh = DEMO ? '<span class="ph-label">Ilustrasi contoh</span>' : '';
-function fotoKartu(p, i, base) {
+function fotoKartu(p, i, base, atas = false) {
   if (p.kartu) {
-    return `<img src="${base}foto/${p.slug}/${esc(p.kartu.file)}" alt="${esc(p.nama)}" width="${p.kartu.w}" height="${p.kartu.h}" loading="lazy" decoding="async">`;
+    // Dua kartu teratas di beranda dimuat langsung (terlihat tanpa scroll), sisanya menunggu didekati.
+    const muat = atas ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
+    return `<img src="${base}foto/${p.slug}/${esc(p.kartu.file)}" alt="${esc(p.nama)}" width="${p.kartu.w}" height="${p.kartu.h}" ${muat} decoding="async">`;
   }
   return ilustrasi(i, p.jenis) + labelContoh;
 }
@@ -370,7 +376,7 @@ function kartu(p, i, base, filter) {
   return `
 <article class="kartu"${filter ? ` data-lokasi="${p.lokasi}" data-jenis="${p.jenis}" data-transaksi="${p.transaksi}"` : ''}>
   <div class="kartu-foto-wrap" style="position:relative">
-    <a class="kartu-foto" href="${href}" data-int tabindex="-1" aria-hidden="true">${fotoKartu(p, i, base)}</a>
+    <a class="kartu-foto" href="${href}" data-int tabindex="-1" aria-hidden="true">${fotoKartu(p, i, base, filter && i < 2)}</a>
     <span class="chip-lokasi">${esc(lok.nama)}</span>
   </div>
   <div class="kartu-isi">
@@ -425,8 +431,9 @@ ${DEMO ? '<meta name="robots" content="noindex, nofollow">\n' : ''}<meta name="t
 <meta property="og:description" content="${esc(desc)}">
 ${canonical ? `<link rel="canonical" href="${esc(canonical)}">\n<meta property="og:url" content="${esc(canonical)}">\n` : ''}${ogImage ? `<meta property="og:image" content="${esc(ogImage)}">\n` : ''}<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="${base}assets/style.css">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"></noscript>
+<link rel="stylesheet" href="${base}assets/style.css?v=${V_CSS}">
 </head>
 <body>
 ${DEMO ? '<div class="contoh" role="note">Halaman contoh. Teks bertanda kuning adalah data contoh yang harus diganti sebelum iklan dijalankan.</div>\n' : ''}
@@ -493,7 +500,7 @@ ${main}
 </dialog>
 
 <script>window.SITE=${jsonInline(site)};</script>
-<script src="${base}assets/app.js" defer></script>
+<script src="${base}assets/app.js?v=${V_JS}" defer></script>
 </body>
 </html>
 `;
@@ -599,9 +606,16 @@ function detailMain(p, idx) {
   const cicilanHtml = adaCicilan ? `<p class="cicilan-blok"><small>Cicilan mulai</small><strong>${p.cicilan ? m(rupiah(p.cicilan.harga) + '/bulan') : '<mark class="isi">Rp xx juta/bulan</mark>'}</strong></p>
   <p class="cicilan-ket">${p.cicilan && p.cicilan.ket ? `Simulasi: ${esc(p.cicilan.ket)}. ` : 'Simulasi perkiraan. '}Cicilan sebenarnya ditentukan bank saat persetujuan KPR.</p>` : '';
 
+  // Foto galeri punya versi kecil untuk HP. Lebar tampil: tinggi bingkai (300px HP, 440px layar lebar) x rasio foto.
+  const srcsetFoto = (p, f, base) => {
+    if (!f.kecil) return '';
+    const r = f.w / f.h;
+    const sizes = `(min-width:800px) ${Math.round(440 * r)}px, ${Math.min(Math.round(300 * r), 350)}px`;
+    return ` srcset="${base}foto/${p.slug}/${esc(f.kecil.file)} ${f.kecil.w}w, ${base}foto/${p.slug}/${esc(f.file)} ${f.w}w" sizes="${sizes}"`;
+  };
   let galeri;
   if (p.foto && p.foto.length) {
-    galeri = p.foto.map((f, k) => `<figure class="foto"><img src="${base}foto/${p.slug}/${esc(f.file)}" alt="${esc(`${p.nama}, foto ${k + 1}`)}" width="${f.w}" height="${f.h}" loading="${k ? 'lazy' : 'eager'}" decoding="async"${k ? '' : ' fetchpriority="high"'}></figure>`).join('');
+    galeri = p.foto.map((f, k) => `<figure class="foto"><img src="${base}foto/${p.slug}/${esc(f.file)}"${srcsetFoto(p, f, base)} alt="${esc(`${p.nama}, foto ${k + 1}`)}" width="${f.w}" height="${f.h}" loading="${k ? 'lazy' : 'eager'}" decoding="async"${k ? '' : ' fetchpriority="high"'}></figure>`).join('');
   } else {
     galeri = `<figure>${ilustrasi(idx, p.jenis)}${labelContoh}</figure>` +
       ['Foto 2: ruang tamu', 'Foto 3: kamar tidur', 'Foto 4: lingkungan'].map((t) => `<figure><div class="ph"><mark class="isi">${t}</mark></div></figure>`).join('');
@@ -692,7 +706,7 @@ for (const p of data.perumahan) {
   jumlahFoto += r.foto.length; byteFoto += r.byteKeluar;
 }
 if (galat.length) berhenti();
-writeFileSync(join(OUT, '_headers'), '/foto/*\n  Cache-Control: public, max-age=31536000, immutable\n');
+writeFileSync(join(OUT, '_headers'), '/foto/*\n  Cache-Control: public, max-age=31536000, immutable\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n');
 
 const namaLokasi = data.lokasi.map((l) => l.nama).join(', ');
 const ogHome = C.ogImage || '';

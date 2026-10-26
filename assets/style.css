@@ -140,6 +140,11 @@ mark.isi{background:#FFE7A8;color:var(--daun-tua);padding:0 .25em;border-radius:
 .harga-blok{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:18px}
 .harga-blok small{color:var(--redam)}
 .harga-blok strong{font:700 1.8rem/1.2 var(--f-judul);color:var(--daun)}
+.harga-blok.ada-cicilan{margin-bottom:6px}
+.cicilan-blok{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 4px}
+.cicilan-blok small{color:var(--redam)}
+.cicilan-blok strong{font:700 1.25rem/1.3 var(--f-judul);color:var(--daun)}
+.cicilan-ket{font-size:.85rem;color:var(--redam);max-width:54ch;margin:0 0 18px}
 .ringkas{max-width:60ch;color:var(--redam);margin-bottom:18px}
 
 .galeri{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;

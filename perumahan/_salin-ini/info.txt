@@ -46,6 +46,11 @@ tipe:
 - [ISI] Tipe 30/60 | 850 juta | LT 60 | LB 30 | KT 2 | KM 1 | Tersedia
 - [ISI] Tipe 36/72 | 1,05 miliar | LT 72 | LB 36 | KT 2 | KM 1 | Tersedia
 
+# Cicilan KPR per bulan, khusus properti dijual. Boleh dikosongkan atau dihapus.
+# Ini simulasi, jadi tulis asumsinya setelah tanda | supaya calon pembeli tidak salah paham.
+# Contoh: cicilan: 9,5 juta/bulan | tenor 20 tahun, DP 10%
+cicilan:
+
 # Tempat penting di sekitar proyek, tampil sebagai kolom per kategori di bagian "Lokasi dan akses".
 # Boleh dihapus kalau belum diukur. Hanya isi yang sudah dicek di Google Maps. Hapus baris yang tidak dipakai.
 # Bentuk tiap baris: kategori | nama tempat | waktu tempuh dengan angka
