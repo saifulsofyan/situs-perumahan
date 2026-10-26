@@ -348,6 +348,18 @@ function kartu(p, i, base, filter) {
 </article>`;
 }
 
+/* ---------- Menu atas: pilihan langsung ke daftar yang sudah disaring ---------- */
+// Beberapa jenis: satu tautan per jenis (Perumahan, Apartemen, Ruko). Ada properti dijual DAN disewa: tambah "Sewa".
+// Satu jenis saja tapi ada jual dan sewa: "Dijual" dan "Sewa". Satu jenis dan satu transaksi: satu tautan ke daftar.
+const NAV_KAT = (() => {
+  const a = [];
+  if (banyakJenis) for (const j of jenisAda) a.push({ teks: JENIS[j].nama, key: j });
+  else if (campur) a.push({ teks: 'Dijual', key: 'jual' });
+  else a.push({ teks: cap(PROP), key: 'semua' });
+  if (campur) a.push({ teks: 'Sewa', key: 'sewa' });
+  return a;
+})();
+
 /* ---------- Kerangka halaman ---------- */
 function page({ depth, title, desc, main, canonicalPath, ogImage, pageInfo }) {
   const base = '../'.repeat(depth);
@@ -382,13 +394,17 @@ ${DEMO ? '<div class="contoh" role="note">Halaman contoh. Teks bertanda kuning a
 <header class="atas"><div class="wrap atas-isi">
   <a class="merek" href="${home}" data-int>${m(C.brand)}</a>
   <nav class="menu" aria-label="Utama">
-    <a href="${base}#katalog" data-int>${cap(PROP)}</a>
+    ${NAV_KAT.map((k) => `<a href="${base}${k.key === 'semua' ? '#katalog' : '#' + k.key}" data-int data-nav="${k.key}">${esc(k.teks)}</a>`).join('\n    ')}
     <a href="${base}#cara" data-int>${TEKS[MODE].caraJudul}</a>
     <a href="${base}#kontak" data-int>Kontak</a>
   </nav>
   <button type="button" class="tombol tombol-tipis" data-buka-lead>Tanya harga</button>
-</div></header>
-
+</div>
+</header>
+${NAV_KAT.length > 1 ? `<div class="wrap"><nav class="menu-hp" data-n="${NAV_KAT.length}" aria-label="Pilih jenis properti">
+  ${NAV_KAT.map((k) => `<a href="${base}#${k.key}" data-int data-nav="${k.key}">${esc(k.teks)}</a>`).join('\n  ')}
+</nav></div>
+` : ''}
 <main>
 ${main}
 </main>

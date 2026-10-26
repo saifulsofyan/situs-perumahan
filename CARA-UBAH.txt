@@ -102,6 +102,9 @@ Aturan singkat:
    Kalau situs punya lebih dari satu jenis, beranda otomatis menampilkan pilihan jenis (Semua jenis,
    Perumahan, Apartemen, Ruko) di samping pilihan lokasi. Kalau hanya ada satu jenis, pilihan itu tidak muncul.
    Link iklan bisa langsung membuka daftar yang sudah disaring: namadomain.com/#apartemen atau namadomain.com/#ruko.
+   Menu di bagian atas situs ikut menyesuaikan sendiri: satu tombol untuk tiap jenis yang ada (Perumahan, Apartemen,
+   Ruko), ditambah tombol Sewa kalau ada properti dijual dan disewa. Di HP tombol-tombol itu tampil sebagai kotak
+   di bawah header. Mengklik salah satunya langsung menyaring daftar properti.
  - lokasi: tulis nama yang sama persis untuk rumah di area yang sama. Pilihan lokasi di beranda
    dibuat otomatis dari isian ini, jadi salah ketik (misalnya Depook) akan muncul sebagai lokasi baru.
  - transaksi: jual (dijual) atau sewa (disewa). Kalau baris transaksi dihapus, dianggap jual.

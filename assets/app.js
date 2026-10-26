@@ -97,6 +97,10 @@
     tiles.forEach(function (t) {
       if (t.getAttribute('data-lokasi') === pilihLokasi) t.setAttribute('aria-current', 'true'); else t.removeAttribute('aria-current');
     });
+    $$('a[data-nav]').forEach(function (a) {
+      var k = a.getAttribute('data-nav');
+      if (k !== 'semua' && (k === pilihJenis || k === pilihTransaksi)) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+    });
     var n = 0;
     cards.forEach(function (c) {
       var show = (pilihLokasi === 'semua' || c.getAttribute('data-lokasi') === pilihLokasi) &&
@@ -135,18 +139,41 @@
         katalog.scrollIntoView({ behavior: scrollBehavior });
       });
     });
-    // Tautan seperti /#apartemen, /#depok, atau /#sewa langsung membuka daftar yang sudah disaring.
-    var h = decodeURIComponent((location.hash || '').slice(1)).toLowerCase();
+    // Pilihan dari menu atas atau dari tautan seperti /#apartemen, /#depok, atau /#sewa: tepat satu pilihan
+    // dipasang (yang lain kembali ke "semua"). "semua" mengosongkan semua pilihan. Hasil true kalau dikenali.
     var alias = { dijual: 'jual', disewa: 'sewa', disewakan: 'sewa' };
-    var tr0 = has(alias, h) ? alias[h] : h;
-    var cocokLokasi = tabsLokasi.some(function (t) { return t.getAttribute('data-lokasi') === h; });
-    var cocokJenis = tabsJenis.some(function (t) { return t.getAttribute('data-jenis') === h; });
-    var cocokTr = tabsTransaksi.some(function (t) { return t.getAttribute('data-transaksi') === tr0; });
-    if (h && h !== 'semua' && (cocokLokasi || cocokJenis || cocokTr)) {
+    function pasangPilihan(raw) {
+      var h = String(raw || '').toLowerCase();
+      var tr0 = has(alias, h) ? alias[h] : h;
+      var cocokLokasi = tabsLokasi.some(function (t) { return t.getAttribute('data-lokasi') === h; });
+      var cocokJenis = tabsJenis.some(function (t) { return t.getAttribute('data-jenis') === h; });
+      var cocokTr = tabsTransaksi.some(function (t) { return t.getAttribute('data-transaksi') === tr0; });
+      if (h === 'semua' || h === 'katalog') { pilihLokasi = pilihJenis = pilihTransaksi = 'semua'; return true; }
+      if (!(cocokLokasi || cocokJenis || cocokTr)) return false;
+      pilihLokasi = pilihJenis = pilihTransaksi = 'semua';
       if (cocokLokasi) pilihLokasi = h; else if (cocokJenis) pilihJenis = h; else pilihTransaksi = tr0;
+      return true;
+    }
+    var h0 = decodeURIComponent((location.hash || '').slice(1));
+    if (h0 && h0.toLowerCase() !== 'semua' && h0.toLowerCase() !== 'katalog' && pasangPilihan(h0)) {
       terapkan(false);
       katalog.scrollIntoView({ behavior: 'auto' });
     }
+    // Menu atas di beranda: saring di tempat, tanpa memuat ulang halaman.
+    $$('a[data-nav]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        if (!pasangPilihan(a.getAttribute('data-nav'))) return;
+        e.preventDefault();
+        terapkan(true);
+        katalog.scrollIntoView({ behavior: scrollBehavior });
+      });
+    });
+    // Tombol kembali atau ubah alamat manual (#sewa dst.) ikut menyaring.
+    window.addEventListener('hashchange', function () {
+      var hh = decodeURIComponent((location.hash || '').slice(1));
+      var hl = hh.toLowerCase();
+      if (hh && hl !== 'katalog' && hl !== 'semua' && pasangPilihan(hh)) { terapkan(false); katalog.scrollIntoView({ behavior: scrollBehavior }); }
+    });
   }
 
   /* ---------- Video YouTube: dimuat saat diklik ---------- */

@@ -49,7 +49,15 @@ mark.isi{background:#FFE7A8;color:var(--daun-tua);padding:0 .25em;border-radius:
 .menu{display:none;gap:28px}
 .menu a{text-decoration:none;font-weight:600;color:var(--redam)}
 .menu a:hover{color:var(--daun)}
+.menu a[aria-current="true"]{color:var(--daun);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:6px}
 @media (min-width:800px){.menu{display:flex}}
+/* Di HP menu atas tersembunyi, jadi pilihan jenis tampil sebagai kotak tombol di bawah header (semuanya terlihat, tanpa digeser). */
+.menu-hp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:10px 0 4px}
+.menu-hp[data-n="3"]{grid-template-columns:repeat(3,minmax(0,1fr))}
+.menu-hp a{display:flex;align-items:center;justify-content:center;min-height:44px;padding:0 6px;border-radius:999px;border:2px solid var(--garis);background:#fff;color:var(--daun-tua);font:600 .92rem/1 var(--f-isi);text-decoration:none;text-align:center}
+.menu-hp a:hover{border-color:var(--daun)}
+.menu-hp a[aria-current="true"]{background:var(--daun);border-color:var(--daun);color:#fff}
+@media (min-width:800px){.menu-hp{display:none}}
 
 /* Bagian umum */
 .bagian{padding:56px 0}
