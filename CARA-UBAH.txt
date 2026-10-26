@@ -20,9 +20,13 @@ A. MENGGANTI ATAU MENAMBAH FOTO RUMAH YANG SUDAH ADA
 3. Menghapus foto lama: klik fotonya, buka menu titik tiga di kanan atas, pilih Delete file,
    lalu Commit changes.
 
-Urutan foto mengikuti nama file, dan angka dihitung sebagai angka (2 muncul sebelum 10).
-Foto pertama menjadi sampul di beranda dan gambar pratinjau saat link dibagikan di WhatsApp
-dan Facebook. Contoh nama: 01-depan.jpg, 02-ruang-tamu.jpg, 03-kamar.jpg, 10-taman.jpg.
+Cara paling sederhana: HANYA foto tampak depan yang diberi kode, yaitu angka lalu tanda hubung,
+contoh 01-tampak-depan.jpg. Foto lain namanya bebas, mau 123.jpeg, warna.jpeg, ruang-tamu.jpg, atau IMG_0042.jpg.
+Urutan tampil: foto berkode lebih dulu (jadi sampul di beranda dan pratinjau link WhatsApp dan Facebook),
+lalu foto lain urut menurut nama (angka dulu, kemudian abjad).
+Kalau ingin mengatur urutan foto lain, beri kode juga: 02-ruang-tamu.jpg, 03-kamar.jpg, 10-taman.jpg.
+Nama yang hanya angka (123.jpeg) atau berawalan angka panjang dari kamera (20261019_101010.jpg) dianggap nama biasa.
+Foto bernama persis depan.jpg atau tampak-depan.jpg tanpa kode juga didahulukan.
 
 Tips foto:
  - Foto tegak dari HP tampil tegak di galeri halaman proyek. Untuk foto SAMPUL (foto pertama),
