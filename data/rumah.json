@@ -1,13 +1,13 @@
 {
   "config": {
     "demo": true,
-    "brand": "Nama Brand Anda",
+    "brand": "YUMNA PROPERTY",
     "perusahaan": "PT Nama Perusahaan",
     "alamat": "Alamat kantor lengkap, kota, kode pos",
     "telepon": "0812 0000 0000",
     "email": "info@namadomain.com",
     "jamKerja": "Setiap hari, 09.00 sampai 17.00",
-    "domain": "",
+    "domain": "https://yumnaproperty.com",
     "ogImage": "",
     "appsScriptUrl": "https://script.google.com/macros/s/AKfycbwfvX9S_BOjGTbg0ENL6E_HqThoVZ8lsTVxudX1PJbu7Qnjv_tkbSrY-CDa9Oi4xpkEzA/exec",
     "metaPixelId": "",
