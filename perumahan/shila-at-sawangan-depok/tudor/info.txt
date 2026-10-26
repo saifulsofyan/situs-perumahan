@@ -1,0 +1,8 @@
+# Tipe Tudor. Kunci yang tidak ditulis di sini diambil dari info.txt kawasan di folder atasnya.
+tipe:
+- Tudor | 3,3 miliar | LT 144 | LB 180 | KT 4 | KM 4 | Lantai 3 | Tersedia
+ringkas: Tudor adalah hunian modern luxury tiga lantai di kawasan Shila at Sawangan, Depok, dengan fasad elegan, balkon luas, dan jendela besar yang memberi pencahayaan alami maksimal. Akses menuju Tol Pamulang dan Sawangan, dengan pilihan kuliner, pertokoan, dan fasilitas olahraga di sekitarnya.
+tentang: Tudor – Hunian Modern Luxury 3 Lantai | Inilah salah satu unit rumah paling menarik di kawasan Shila at Sawangan. Tipe Tudor hadir dengan desain modern luxury 3 lantai, fasad yang elegan, balkon luas, serta jendela besar yang memberikan pencahayaan alami maksimal. || Hunian ini cocok untuk Anda yang mencari rumah dengan desain modern, ruang yang luas, dan lingkungan yang nyaman untuk keluarga. || Keunggulan kawasan Shila at Sawangan: kawasan hunian premium dengan lingkungan hijau; dikelilingi danau alami dan area golf; akses mudah menuju Jakarta dan kawasan sekitarnya; suasana tenang dan eksklusif. || Rumah ini bukan hanya tempat tinggal, tetapi juga investasi properti yang menjanjikan di kawasan berkembang di selatan Jakarta.
+cicilan: 14 juta/bulan | tenor 25 tahun, DP 5%
+youtube: https://www.youtube.com/watch?v=qk5DdFHca7Y
+urutan: 4
