@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync, mkdirSync, cpSync, rmSync, existsSync, rea
 import { join, dirname } from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { parseInfo, slugify, JENIS, KATEGORI_AKSES } from './lib/info.mjs';
+import { parseInfo, slugify, JENIS, KATEGORI_AKSES, gabungInfo, petakanGalat, jadikanHalamanTipe } from './lib/info.mjs';
 import { daftarFoto, prosesFoto, muatSharp } from './lib/foto.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
@@ -51,6 +51,9 @@ if (!sharp) {
 
 const daftarRumah = [];
 const slugDari = new Map();
+const cariInfo = (d) => readdirSync(d).find((f) => /^info(\.txt)*$/i.test(f));
+const galatSekali = new Set();
+const tambahGalat = (...g) => { for (const x of g) if (!galatSekali.has(x)) { galatSekali.add(x); galat.push(x); } };
 for (const folder of folders) {
   const slug = slugify(folder);
   if (!slug) { galat.push(`folder "${folder}": nama folder harus memuat huruf atau angka`); continue; }
@@ -58,14 +61,39 @@ for (const folder of folders) {
   slugDari.set(slug, folder);
   if (!DEMO && /^contoh(-|$)/.test(slug)) galat.push(`[${folder}] ini data contoh bawaan. Hapus folder ini (atau ganti namanya dan isinya dengan data asli) sebelum tayang`);
   const dir = join(RUMAH_DIR, folder);
-  const infoFile = readdirSync(dir).find((f) => /^info(\.txt)*$/i.test(f));
+  const infoFile = cariInfo(dir);
   if (!infoFile) { galat.push(`[${folder}] tidak ada info.txt di folder ini`); continue; }
-  const { rumah, galat: g } = parseInfo(readFileSync(join(dir, infoFile), 'utf8'), `[${folder}]`, { produksi: !DEMO });
-  galat.push(...g);
+  const teksInfo = readFileSync(join(dir, infoFile), 'utf8');
   const { foto, ditolak } = daftarFoto(dir);
   for (const f of ditolak) galat.push(`[${folder}] ${f}: format HEIC/HEIF belum didukung. Simpan sebagai JPG`);
-  if (!DEMO && !foto.length) galat.push(`[${folder}] belum ada foto. Mode tayang (demo:false) wajib memakai foto asli. Taruh foto JPG, PNG, atau WebP di folder ini`);
-  daftarRumah.push({ ...rumah, slug, folder, fileFoto: foto });
+  // Subfolder yang punya info.txt = satu tipe, dengan kartu dan halamannya sendiri.
+  const subTipe = readdirSync(dir, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && !/^[_.]/.test(d.name) && cariInfo(join(dir, d.name)))
+    .map((d) => d.name).sort((a, b) => a.localeCompare(b, 'en', { numeric: true, sensitivity: 'base' }));
+
+  if (!subTipe.length) {
+    const { rumah, galat: g } = parseInfo(teksInfo, `[${folder}]`, { produksi: !DEMO });
+    galat.push(...g);
+    if (!DEMO && !foto.length) galat.push(`[${folder}] belum ada foto. Mode tayang (demo:false) wajib memakai foto asli. Taruh foto JPG, PNG, atau WebP di folder ini`);
+    daftarRumah.push({ ...rumah, slug, folder, fileFoto: foto });
+    continue;
+  }
+  subTipe.forEach((sub, idx) => {
+    const slugT = `${slug}-${slugify(sub)}`;
+    const ctxT = `[${folder}/${sub}]`;
+    if (!slugify(sub)) { galat.push(`folder tipe "${folder}/${sub}": nama folder harus memuat huruf atau angka`); return; }
+    if (slugDari.has(slugT)) { galat.push(`folder "${folder}/${sub}" dan "${slugDari.get(slugT)}" menghasilkan alamat halaman yang sama (${slugT}). Ganti salah satu namanya`); return; }
+    slugDari.set(slugT, `${folder}/${sub}`);
+    const subDir = join(dir, sub);
+    const g = gabungInfo(teksInfo, readFileSync(join(subDir, cariInfo(subDir)), 'utf8'), `[${folder}]`, ctxT);
+    const { rumah, galat: gp } = parseInfo(g.teks, ctxT, { produksi: !DEMO });
+    tambahGalat(...g.galat, ...petakanGalat(gp, g.peta));
+    jadikanHalamanTipe(rumah, ctxT, galat);
+    const ft = daftarFoto(subDir);
+    for (const f of ft.ditolak) galat.push(`${ctxT} ${f}: format HEIC/HEIF belum didukung. Simpan sebagai JPG`);
+    if (!DEMO && !ft.foto.length && !foto.length) galat.push(`${ctxT} belum ada foto. Mode tayang (demo:false) wajib memakai foto asli. Taruh foto JPG, PNG, atau WebP di folder tipe ini`);
+    daftarRumah.push({ ...rumah, slug: slugT, folder: `${folder}/${sub}`, kawasanSlug: slug, kawasanFolder: folder, fileFoto: ft.foto, fileFotoKawasan: foto, urutanTipe: g.urutanTipe ?? 1000 + idx });
+  });
 }
 
 // Lokasi diambil dari isian "lokasi:" tiap rumah (tulisan yang sama = lokasi yang sama).
@@ -77,7 +105,8 @@ for (const p of daftarRumah) {
   if (ls && !lokasiMap.has(ls)) lokasiMap.set(ls, { slug: ls, nama: p.lokasiNama });
 }
 data.lokasi = [...lokasiMap.values()].sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
-daftarRumah.sort((a, b) => a.urutan - b.urutan || a.slug.localeCompare(b.slug));
+// Tipe satu kawasan berdampingan, berurutan menurut urutan tipe.
+daftarRumah.sort((a, b) => a.urutan - b.urutan || (a.kawasanSlug || a.slug).localeCompare(b.kawasanSlug || b.slug) || (a.urutanTipe ?? 0) - (b.urutanTipe ?? 0) || a.slug.localeCompare(b.slug));
 data.perumahan = daftarRumah;
 if (galat.length) berhenti();
 
@@ -266,7 +295,7 @@ function fotoKartu(p, i, base, atas = false) {
   if (p.kartu) {
     // Dua kartu teratas di beranda dimuat langsung (terlihat tanpa scroll), sisanya menunggu didekati.
     const muat = atas ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
-    return `<img src="${base}foto/${p.slug}/${esc(p.kartu.file)}" alt="${esc(p.nama)}" width="${p.kartu.w}" height="${p.kartu.h}" ${muat} decoding="async">`;
+    return `<img src="${base}foto/${p.kartu.dir || p.slug}/${esc(p.kartu.file)}" alt="${esc(p.nama)}" width="${p.kartu.w}" height="${p.kartu.h}" ${muat} decoding="async">`;
   }
   return ilustrasi(i, p.jenis) + labelContoh;
 }
@@ -384,7 +413,7 @@ function kartu(p, i, base, filter) {
     <h3><a href="${href}" data-int>${m(p.nama)}</a></h3>
     <p class="alamat">${m(p.alamat)}</p>
     <div class="harga-baris">${habis ? `<strong class="habis-teks">${habisTeks(p)}</strong>` : `<small>${hargaMulaiLabel(p)}</small><strong>${m(hargaTeks(p, mt))}</strong>`}</div>
-    <p class="spek-mini"><span>${habis ? p.tipe.length + ' tipe' : a.length + ' tipe tersedia'}</span><span>${m(ukuranMulai(p))}</span></p>
+    <p class="spek-mini">${p.kawasanSlug ? spekTipe(p, p.tipe[0]).slice(0, 2).map((x) => `<span>${m(x)}</span>`).join('') : `<span>${habis ? p.tipe.length + ' tipe' : a.length + ' tipe tersedia'}</span><span>${m(ukuranMulai(p))}</span>`}</p>
     <div class="aksi-kartu">
       <a class="tombol tombol-tipis" href="${href}" data-int>Lihat detail</a>
       ${habis ? '' : `<button type="button" class="tombol" data-buka-lead data-p="${p.slug}">Tanya harga</button>`}
@@ -611,11 +640,11 @@ function detailMain(p, idx) {
     if (!f.kecil) return '';
     const r = f.w / f.h;
     const sizes = `(min-width:800px) ${Math.round(440 * r)}px, ${Math.min(Math.round(300 * r), 350)}px`;
-    return ` srcset="${base}foto/${p.slug}/${esc(f.kecil.file)} ${f.kecil.w}w, ${base}foto/${p.slug}/${esc(f.file)} ${f.w}w" sizes="${sizes}"`;
+    return ` srcset="${base}foto/${f.dir || p.slug}/${esc(f.kecil.file)} ${f.kecil.w}w, ${base}foto/${f.dir || p.slug}/${esc(f.file)} ${f.w}w" sizes="${sizes}"`;
   };
   let galeri;
   if (p.foto && p.foto.length) {
-    galeri = p.foto.map((f, k) => `<figure class="foto"><img src="${base}foto/${p.slug}/${esc(f.file)}"${srcsetFoto(p, f, base)} alt="${esc(`${p.nama}, foto ${k + 1}`)}" width="${f.w}" height="${f.h}" loading="${k ? 'lazy' : 'eager'}" decoding="async"${k ? '' : ' fetchpriority="high"'}></figure>`).join('');
+    galeri = p.foto.map((f, k) => `<figure class="foto"><img src="${base}foto/${f.dir || p.slug}/${esc(f.file)}"${srcsetFoto(p, f, base)} alt="${esc(`${p.nama}, foto ${k + 1}`)}" width="${f.w}" height="${f.h}" loading="${k ? 'lazy' : 'eager'}" decoding="async"${k ? '' : ' fetchpriority="high"'}></figure>`).join('');
   } else {
     galeri = `<figure>${ilustrasi(idx, p.jenis)}${labelContoh}</figure>` +
       ['Foto 2: ruang tamu', 'Foto 3: kamar tidur', 'Foto 4: lingkungan'].map((t) => `<figure><div class="ph"><mark class="isi">${t}</mark></div></figure>`).join('');
@@ -633,7 +662,13 @@ function detailMain(p, idx) {
 
   // Yang serupa didahulukan: sejenis dan selokasi, lalu sejenis, lalu selokasi, lalu sisanya.
   const skor = (x) => (x.jenis === p.jenis ? 2 : 0) + (x.lokasi === p.lokasi ? 1 : 0);
-  const lain = data.perumahan.filter((x) => x !== p)
+  const saudara = p.kawasanSlug ? data.perumahan.filter((x) => x !== p && x.kawasanSlug === p.kawasanSlug) : [];
+  const saudaraSec = saudara.length ? `
+<section class="bagian bagian-garis" id="tipe-lain" aria-labelledby="h-saudara"><div class="wrap">
+  <h2 id="h-saudara">Tipe lain di ${m(p.kawasan)}</h2>
+  <div class="grid">${saudara.map((x) => kartu(x, data.perumahan.indexOf(x), base, false)).join('')}</div>
+</div></section>` : '';
+  const lain = data.perumahan.filter((x) => x !== p && !saudara.includes(x))
     .sort((x, y) => skor(y) - skor(x) || data.perumahan.indexOf(x) - data.perumahan.indexOf(y))
     .slice(0, 3);
   const lainSec = lain.length ? `
@@ -658,7 +693,7 @@ function detailMain(p, idx) {
   <p class="ringkas">${m(p.ringkas)}</p>
   <div class="aksi">
     ${habis ? '' : `<button type="button" class="tombol" data-buka-lead data-p="${p.slug}">Jadwalkan survei</button>`}
-    <a class="tautan" href="#tipe">Lihat tipe dan harga</a>
+    <a class="tautan" href="#tipe">Lihat tipe dan harga</a>${saudara.length ? '\n    <a class="tautan" href="#tipe-lain">Lihat tipe lain</a>' : ''}
   </div>
 </div></section>
 <div class="galeri" tabindex="0" role="region" aria-label="Galeri foto, geser ke samping">${galeri}</div>
@@ -670,6 +705,7 @@ ${seksi('ringkas', 'Ringkasan proyek', '', `<dl class="fakta">
     ${p.kantor ? `<div><dt>Kantor pemasaran</dt><dd>${m(p.kantor)}</dd></div>` : ''}
   </dl>`, false)}
 ${seksi('tipe', `${JENIS[p.jenis].tipeNama} dan harga${sewa ? ' sewa' : ''}`, 'Harga dan ketersediaan dapat berubah. Tanyakan ke marketing untuk angka terbaru.', `<ul class="tipe">${tipeRows}</ul>`)}
+${saudaraSec}
 ${fas ? seksi('fasilitas', 'Fasilitas', `Hanya fasilitas yang benar-benar tersedia di ${JENIS[p.jenis].nama.toLowerCase()} ini.`, `<ul class="fasilitas">${fas}</ul>`) : ''}
 ${videoSec}
 ${kelompok.length ? `
@@ -699,11 +735,27 @@ cpSync(join(ROOT, 'assets'), join(OUT, 'assets'), { recursive: true });
 
 // Foto: dikecilkan ke WebP, nama file memuat kode isinya, sehingga foto yang diganti langsung tampil baru.
 let jumlahFoto = 0, byteFoto = 0;
+const fotoKawasan = new Map(); // foto kawasan diproses sekali, dipakai semua tipe di kawasan itu
 for (const p of data.perumahan) {
   const r = await prosesFoto({ sharp, dirSumber: join(RUMAH_DIR, p.folder), dirKeluar: join(OUT, 'foto', p.slug), files: p.fileFoto });
   for (const g of r.galat) galat.push(`[${p.folder}] ${g}`);
-  p.foto = r.foto; p.kartu = r.kartu; p.og = r.og;
+  p.foto = r.foto.map((f) => ({ ...f, dir: p.slug }));
+  p.kartu = r.kartu ? { ...r.kartu, dir: p.slug } : null;
+  p.og = r.og; p.ogDir = p.slug;
   jumlahFoto += r.foto.length; byteFoto += r.byteKeluar;
+  if (p.kawasanSlug && p.fileFotoKawasan.length) {
+    let k = fotoKawasan.get(p.kawasanSlug);
+    if (!k) {
+      k = await prosesFoto({ sharp, dirSumber: join(RUMAH_DIR, p.kawasanFolder), dirKeluar: join(OUT, 'foto', p.kawasanSlug), files: p.fileFotoKawasan });
+      for (const g of k.galat) galat.push(`[${p.kawasanFolder}] ${g}`);
+      fotoKawasan.set(p.kawasanSlug, k);
+      jumlahFoto += k.foto.length; byteFoto += k.byteKeluar;
+    }
+    // Foto kawasan yang isinya sama dengan foto tipe tidak ditampilkan dua kali (misalnya foto lama yang belum dihapus dari folder proyek).
+    const sudahAda = new Set(r.foto.map((f) => f.id));
+    p.foto.push(...k.foto.filter((f) => !sudahAda.has(f.id)).map((f) => ({ ...f, dir: p.kawasanSlug })));
+    if (!p.kartu && k.kartu) { p.kartu = { ...k.kartu, dir: p.kawasanSlug }; p.og = k.og; p.ogDir = p.kawasanSlug; }
+  }
 }
 if (galat.length) berhenti();
 writeFileSync(join(OUT, '_headers'), '/foto/*\n  Cache-Control: public, max-age=31536000, immutable\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n');
@@ -722,7 +774,7 @@ writeFileSync(join(OUT, 'index.html'), page({
 data.perumahan.forEach((p, idx) => {
   const lok = lokasiMap.get(p.lokasi);
   const mt = minTipe(p);
-  const foto0 = p.og && C.domain ? `${C.domain.replace(/\/$/, '')}/foto/${p.slug}/${p.og}` : ogHome;
+  const foto0 = p.og && C.domain ? `${C.domain.replace(/\/$/, '')}/foto/${p.ogDir || p.slug}/${p.og}` : ogHome;
   const dir = join(OUT, 'rumah', p.slug);
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, 'index.html'), page({

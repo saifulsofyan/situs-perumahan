@@ -1,0 +1,22 @@
+# CONTOH info.txt UNTUK SATU TIPE (kartu per tipe). Folder ini diabaikan situs karena namanya diawali garis bawah.
+# Cara pakai: di dalam folder proyek (yang punya info.txt kawasan), buat folder baru bernama tipe, contoh: verdant
+# (nama folder ini ikut jadi alamat halaman: /rumah/<folder-proyek>-verdant/). Salin isi file ini ke verdant/info.txt,
+# lalu taruh foto tipe itu di folder verdant. Kunci yang tidak ditulis di sini (alamat, developer, fasilitas, akses,
+# maps, video, sertifikat) otomatis diambil dari info.txt proyek. Nama proyek tidak ditulis di sini.
+#
+# Hanya SATU baris tipe di file ini. Tipe lain dibuat di folder lain.
+# Format baris tipe sama dengan info.txt proyek: Nama tipe | harga | ukuran | status
+tipe:
+- [ISI] Verdant | 1,9 miliar | LT 98 | LB 110 | KT 3 | KM 3 | Lantai 2 | Tersedia
+
+# Boleh dikosongkan atau dihapus. Kalau dihapus, dipakai ringkas: dari info.txt proyek.
+ringkas: [ISI] Satu atau dua kalimat khusus tipe ini. Hanya tulis yang benar.
+
+# Cicilan khusus tipe ini (jual saja). Contoh: cicilan: 9,5 juta/bulan | tenor 20 tahun, DP 10%. Boleh dihapus.
+cicilan: [ISI] 8 juta/bulan | tenor 25 tahun, DP 5%
+
+# Opsional: video khusus tipe ini. Kalau dihapus, dipakai video proyek.
+# youtube:
+
+# Urutan antar tipe di proyek yang sama (angka kecil lebih dulu). Boleh dihapus.
+urutan: 1

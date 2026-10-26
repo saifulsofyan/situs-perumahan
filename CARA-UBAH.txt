@@ -222,3 +222,20 @@ KECEPATAN SITUS DAN JUMLAH PROYEK
   per situs dan 20 menit untuk proses build; satu proyek memakai sekitar 21 file. Jadi ratusan proyek masih muat.
 - Upload ke GitHub lewat web: maksimal 100 file per kali upload dan 25 MB per file. Tambahkan 3 sampai 5
   proyek per upload supaya mudah dicek.
+
+
+KARTU TERPISAH PER TIPE (contoh: Shila at Sawangan Tipe Verdant)
+----------------------------------------------------------------
+Kalau satu proyek punya beberapa tipe dan Anda ingin tiap tipe punya kartu, halaman, foto, harga, dan cicilan sendiri:
+ - Folder proyek (contoh perumahan/shila-at-sawangan-depok/) berisi info.txt kawasan: nama, alamat, developer,
+   fasilitas, lokasi dan akses, maps, video. Data ini dipakai bersama oleh semua tipe. Foto kawasan juga di sini.
+ - Di dalamnya, satu folder per tipe (contoh verdant/, aspen/) berisi info.txt tipe dan foto tipe itu.
+   Contoh isi info.txt tipe ada di perumahan/_tipe-contoh/info.txt.
+ - Halaman tipe bernama "<Nama proyek> Tipe <Nama tipe>", alamatnya /rumah/<folder-proyek>-<folder-tipe>/,
+   dan di dalamnya ada bagian "Tipe lain di <Nama proyek>".
+ - Foto tipe tampil lebih dulu, lalu foto kawasan. Foto pertama di folder tipe jadi sampul kartunya.
+   Tipe tanpa foto sendiri memakai foto kawasan.
+ - Menambah tipe baru: buat folder baru di dalam folder proyek (Add file > Create new file, ketik
+   perumahan/shila-at-sawangan-depok/aspen/info.txt), isi, lalu unggah foto tipe ke folder itu.
+ - Di info.txt kawasan JANGAN menulis tipe: dan cicilan:. Dua kunci itu hanya ditulis di info.txt tiap tipe.
+ - Jangan mengganti nama folder tipe setelah iklan berjalan, karena link iklannya akan rusak.

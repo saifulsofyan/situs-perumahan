@@ -2,6 +2,12 @@
 # Cara pakai: salin seluruh isi file ini ke info.txt di folder properti baru, lalu ganti semua yang bertanda [ISI].
 # Baris yang diawali tanda # hanya catatan dan tidak tampil di situs.
 # Bagian "tipe" boleh ditambah atau dikurangi. Satu tipe satu baris, diawali tanda "-".
+#
+# DUA CARA MENAMPILKAN TIPE:
+#  1. Satu kartu untuk seluruh proyek (isi file ini apa adanya): semua tipe ada di satu halaman.
+#  2. Satu kartu per tipe (misalnya "Shila at Sawangan Tipe Verdant"): hapus bagian tipe: dan cicilan: dari file ini,
+#     lalu buat satu folder per tipe di dalam folder proyek. Contoh isinya ada di perumahan/_tipe-contoh/info.txt.
+#     Foto tipe ditaruh di folder tipe itu. Foto di folder proyek tampil di semua tipe.
 
 nama: [ISI] Nama perumahan, apartemen, atau ruko
 # Jenis: tulis perumahan, apartemen, atau ruko. Kalau baris ini dihapus, dianggap perumahan.
