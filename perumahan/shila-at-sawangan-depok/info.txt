@@ -1,0 +1,15 @@
+nama: Shila at Sawangan
+jenis: perumahan
+transaksi: jual
+lokasi: Depok
+alamat: Sawangan, Depok
+developer: Vasanta Group dan PT MC Urban Development Indonesia
+sertifikat: SHM
+ringkas: Hunian dua lantai di Sawangan, Depok, dekat akses tol Pamulang dan Sawangan. Di sekitarnya ada banyak kuliner, ruko, dan fasilitas olahraga.
+kantor: Jln Sawangan
+fasilitas: One gate system, Taman bermain anak, Musala
+youtube: https://www.youtube.com/watch?v=D9XYeutUiBk
+maps: https://www.google.com/maps/place/Shila+at+Sawangan/@-6.4015431,106.7402703,17z/data=!3m1!4b1!4m6!3m5!1s0x2e69e8bef5a0ec4b:0x277ab9741aefa5d6!8m2!3d-6.4015431!4d106.7428452!16s%2Fg%2F11stllt5n2?entry=ttu&g_ep=EgoyMDI2MTAyMC4wIKXMDSoASAFQAw%3D%3D
+urutan: 1
+tipe:
+- Verdant | 1,9 miliar | LT 98 | LB 110 | KT 3 | KM 3 | Lantai 2 | Tersedia

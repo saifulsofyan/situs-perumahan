@@ -25,7 +25,9 @@ Foto pertama menjadi sampul di beranda dan gambar pratinjau saat link dibagikan 
 dan Facebook. Contoh nama: 01-depan.jpg, 02-ruang-tamu.jpg, 03-kamar.jpg, 10-taman.jpg.
 
 Tips foto:
- - Foto mendatar (landscape) paling bagus. Foto tegak tetap tampil utuh di atas latar buram.
+ - Foto tegak dari HP tampil tegak di galeri halaman proyek. Untuk foto SAMPUL (foto pertama),
+   pakai foto mendatar (landscape) supaya kartu di beranda terisi penuh. Foto sampul tegak
+   tampil utuh di tengah dengan sisi buram.
  - Format yang diterima: JPG, PNG, WebP. Foto iPhone berformat HEIC belum diterima. Ubah di
    iPhone: Pengaturan > Kamera > Format > Paling Kompatibel. Foto yang dikirim lewat WhatsApp
    biasanya sudah berformat JPG.

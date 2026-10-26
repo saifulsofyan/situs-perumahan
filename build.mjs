@@ -547,7 +547,7 @@ function detailMain(p, idx) {
 
   let galeri;
   if (p.foto && p.foto.length) {
-    galeri = p.foto.map((f, k) => `<figure><img src="${base}foto/${p.slug}/${esc(f.file)}" alt="${esc(`${p.nama}, foto ${k + 1}`)}" width="${f.w}" height="${f.h}" loading="${k ? 'lazy' : 'eager'}" decoding="async"${k ? '' : ' fetchpriority="high"'}></figure>`).join('');
+    galeri = p.foto.map((f, k) => `<figure class="foto"><img src="${base}foto/${p.slug}/${esc(f.file)}" alt="${esc(`${p.nama}, foto ${k + 1}`)}" width="${f.w}" height="${f.h}" loading="${k ? 'lazy' : 'eager'}" decoding="async"${k ? '' : ' fetchpriority="high"'}></figure>`).join('');
   } else {
     galeri = `<figure>${ilustrasi(idx, p.jenis)}${labelContoh}</figure>` +
       ['Foto 2: ruang tamu', 'Foto 3: kamar tidur', 'Foto 4: lingkungan'].map((t) => `<figure><div class="ph"><mark class="isi">${t}</mark></div></figure>`).join('');
