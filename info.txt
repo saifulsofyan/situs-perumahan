@@ -1,61 +1,24 @@
-# CONTOH ISI UNTUK PROPERTI BARU (perumahan, apartemen, atau ruko). Folder ini diabaikan oleh situs (namanya diawali garis bawah).
-# Cara pakai: salin seluruh isi file ini ke info.txt di folder properti baru, lalu ganti semua yang bertanda [ISI].
-# Baris yang diawali tanda # hanya catatan dan tidak tampil di situs.
-# Bagian "tipe" boleh ditambah atau dikurangi. Satu tipe satu baris, diawali tanda "-".
-
-nama: [ISI] Nama perumahan, apartemen, atau ruko
-# Jenis: tulis perumahan, apartemen, atau ruko. Kalau baris ini dihapus, dianggap perumahan.
+nama: Shila at Sawangan
 jenis: perumahan
-# Transaksi: tulis jual (dijual) atau sewa (disewa). Kalau baris ini dihapus, dianggap jual.
-# Untuk sewa: harga di bagian tipe WAJIB memakai satuan waktu, contoh 25 juta/tahun atau 3,5 juta/bulan.
 transaksi: jual
-lokasi: [ISI] Nama kota atau area, contoh: Depok
-# Tulis nama lokasi yang sama persis untuk semua rumah di area yang sama (Depok dan depok dianggap sama).
-alamat: [ISI] Kecamatan dan kota, contoh: Sawangan, Depok
-developer: [ISI] PT nama developer
-# Sertifikat: boleh dikosongkan untuk properti sewa, wajib untuk properti dijual.
-sertifikat: [ISI] SHM atau HGB
-ringkas: [ISI] Satu atau dua kalimat tentang proyek ini. Hanya tulis yang benar.
-kantor: [ISI] Alamat kantor pemasaran (boleh dikosongkan)
-
-# Fasilitas: pisahkan dengan koma. Hanya tulis yang benar-benar sudah ada atau sudah dijanjikan tertulis.
-fasilitas: One gate system, Taman bermain anak, Jalan paving
-
-# Video dari YouTube: tempel link-nya saja. Kalau belum ada video, kosongkan.
-youtube:
-# Link Google Maps: dari tombol Bagikan di Google Maps. Boleh dikosongkan.
-maps:
-
-# Urutan di beranda. Angka kecil tampil lebih dulu. Boleh dihapus (lalu urut menurut nama folder).
+lokasi: Depok
+alamat: Sawangan, Depok
+developer: Vasanta Group dan PT MC Urban Development Indonesia
+sertifikat: SHM
+ringkas: Hunian dua lantai di Sawangan, Depok, dekat akses tol Pamulang dan Sawangan. Di sekitarnya ada banyak kuliner, ruko, dan fasilitas olahraga.
+kantor: Jln Sawangan
+fasilitas: One gate system, Taman bermain anak, Musala
+youtube: https://www.youtube.com/watch?v=D9XYeutUiBk
+maps: https://www.google.com/maps/place/Shila+at+Sawangan/@-6.4015431,106.7402703,17z/data=!3m1!4b1!4m6!3m5!1s0x2e69e8bef5a0ec4b:0x277ab9741aefa5d6!8m2!3d-6.4015431!4d106.7428452!16s%2Fg%2F11stllt5n2?entry=ttu&g_ep=EgoyMDI2MTAyMC4wIKXMDSoASAFQAw%3D%3D
 urutan: 1
-
-# Format satu tipe:
-# - Nama tipe | harga | ukuran | status
-# Ukuran yang wajib tergantung jenis:
-#   perumahan: LT (luas tanah), LB (luas bangunan), KT (kamar tidur), KM (kamar mandi)
-#              contoh: LT 60 | LB 30 | KT 2 | KM 1
-#   apartemen: LB (luas unit), KT (kamar tidur, tulis KT 0 untuk studio), KM (kamar mandi)
-#              contoh: LB 36 | KT 2 | KM 1
-#   ruko:      LT (luas tanah), LB (luas bangunan), Lantai (jumlah lantai); KM boleh ditambah
-#              contoh: LT 72 | LB 180 | Lantai 3
-# Harga jual boleh ditulis: 850 juta, 1,05 miliar, atau 850000000.
-# Harga sewa wajib memakai satuan waktu: 25 juta/tahun, 3,5 juta/bulan. Contoh baris tipe sewa:
-#   - Studio 24 | 4,5 juta/bulan | LB 24 | KT 0 | KM 1 | Tersedia
-# Status: Tersedia atau Terjual (untuk sewa: Disewa). Kalau status dikosongkan dianggap Tersedia. Tipe Terjual atau Disewa tidak punya tombol tanya.
 tipe:
-- [ISI] Tipe 30/60 | 850 juta | LT 60 | LB 30 | KT 2 | KM 1 | Tersedia
-- [ISI] Tipe 36/72 | 1,05 miliar | LT 72 | LB 36 | KT 2 | KM 1 | Tersedia
-
-# Cicilan KPR per bulan, khusus properti dijual. Boleh dikosongkan atau dihapus.
-# Ini simulasi, jadi tulis asumsinya setelah tanda | supaya calon pembeli tidak salah paham.
-# Contoh: cicilan: 9,5 juta/bulan | tenor 20 tahun, DP 10%
-cicilan:
-
-# Tempat penting di sekitar proyek, tampil sebagai kolom per kategori di bagian "Lokasi dan akses".
-# Boleh dihapus kalau belum diukur. Hanya isi yang sudah dicek di Google Maps. Hapus baris yang tidak dipakai.
-# Bentuk tiap baris: kategori | nama tempat | waktu tempuh dengan angka
-# Kategori: Mall & Lifestyle, Rumah Sakit, Sekolah & Kampus, Fasilitas & Akses (tol, stasiun), Taman & Rekreasi
+- Verdant | 1,9 miliar | LT 98 | LB 110 | KT 3 | KM 3 | Lantai 2 | Tersedia
 akses:
-- Mall & Lifestyle | [ISI] Nama pusat belanja | 5 menit
-- Rumah Sakit | [ISI] Nama rumah sakit | 10 menit
-- Fasilitas & Akses | [ISI] Pintu tol terdekat | 7 menit
+- Mall & Lifestyle | The Park Sawangan | 5 menit
+- Mall & Lifestyle | Pondok Indah Mall | 20 menit
+- Mall & Lifestyle | Cilandak Town Square | 25 menit
+- Rumah Sakit | Mitra Keluarga | 3 menit
+- Rumah Sakit | Brawijaya Hospital | 5 menit
+- Fasilitas & Akses | Pintu Tol Pamulang | 15 menit
+- Fasilitas & Akses | Pintu Tol Sawangan | 20 menit
+- Fasilitas & Akses | MRT Lebak Bulus | 25 menit
