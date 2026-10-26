@@ -592,6 +592,11 @@ function detailMain(p, idx) {
           <ul class="sek-daftar">${g.isi.map((x) => `<li><span>${esc(x.nama)}</span><b>${m(x.waktu)}</b></li>`).join('')}</ul>
         </div>`).join('');
 
+  // Cicilan mulai: hanya untuk properti dijual yang masih ada tipe tersedia. Tanpa isian: mode contoh menampilkan tempat kosong bertanda kuning, mode tayang menyembunyikannya.
+  const adaCicilan = !sewaP(p) && !!minTipe(p) && (p.cicilan || DEMO);
+  const cicilanHtml = adaCicilan ? `<p class="cicilan-blok"><small>Cicilan mulai</small><strong>${p.cicilan ? m(rupiah(p.cicilan.harga) + '/bulan') : '<mark class="isi">Rp xx juta/bulan</mark>'}</strong></p>
+  <p class="cicilan-ket">${p.cicilan && p.cicilan.ket ? `Simulasi: ${esc(p.cicilan.ket)}. ` : 'Simulasi perkiraan. '}Cicilan sebenarnya ditentukan bank saat persetujuan KPR.</p>` : '';
+
   let galeri;
   if (p.foto && p.foto.length) {
     galeri = p.foto.map((f, k) => `<figure class="foto"><img src="${base}foto/${p.slug}/${esc(f.file)}" alt="${esc(`${p.nama}, foto ${k + 1}`)}" width="${f.w}" height="${f.h}" loading="${k ? 'lazy' : 'eager'}" decoding="async"${k ? '' : ' fetchpriority="high"'}></figure>`).join('');
@@ -633,7 +638,7 @@ function detailMain(p, idx) {
 <section class="judul-blok"><div class="wrap">
   ${lencana(p) ? lencana(p) + '\n  ' : ''}<h1>${m(p.nama)}</h1>
   <p class="alamat">${m(p.alamat)}</p>
-  ${habis ? `<p class="harga-blok"><strong>${habisTeks(p)}</strong></p>` : `<p class="harga-blok"><small>${hargaMulaiLabel(p)}</small><strong>${m(hargaTeks(p, mt))}</strong></p>`}
+  ${habis ? `<p class="harga-blok"><strong>${habisTeks(p)}</strong></p>` : `<p class="harga-blok${cicilanHtml ? ' ada-cicilan' : ''}"><small>${hargaMulaiLabel(p)}</small><strong>${m(hargaTeks(p, mt))}</strong></p>${cicilanHtml}`}
   <p class="ringkas">${m(p.ringkas)}</p>
   <div class="aksi">
     ${habis ? '' : `<button type="button" class="tombol" data-buka-lead data-p="${p.slug}">Jadwalkan survei</button>`}

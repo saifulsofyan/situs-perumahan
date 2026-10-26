@@ -26,6 +26,27 @@ export function normalJenis(raw) {
   return SINONIM_JENIS[String(raw ?? '').toLowerCase().replace(/\s+/g, ' ').trim()] || null;
 }
 
+// Kategori tempat di sekitar proyek (bagian "Lokasi dan akses"). Urutan di sini = urutan tampil.
+export const KATEGORI_AKSES = {
+  belanja: { nama: 'Mall & Lifestyle', ket: 'Belanja, kuliner, dan kebutuhan keluarga' },
+  kesehatan: { nama: 'Rumah Sakit', ket: 'Layanan kesehatan dalam jangkauan' },
+  pendidikan: { nama: 'Sekolah & Kampus', ket: 'Pendidikan untuk anak dan keluarga' },
+  akses: { nama: 'Fasilitas & Akses', ket: 'Jalan tol, stasiun, dan akses harian' },
+  rekreasi: { nama: 'Taman & Rekreasi', ket: 'Ruang terbuka, olahraga, dan hiburan' },
+};
+const SINONIM_AKSES = {
+  belanja: ['mall & lifestyle', 'mall dan lifestyle', 'mall', 'lifestyle', 'belanja', 'kuliner', 'pusat belanja', 'supermarket', 'pasar'],
+  kesehatan: ['rumah sakit', 'rs', 'kesehatan', 'klinik', 'rumah sakit & klinik'],
+  pendidikan: ['sekolah & kampus', 'sekolah dan kampus', 'sekolah', 'kampus', 'pendidikan', 'universitas'],
+  akses: ['fasilitas & akses', 'fasilitas dan akses', 'akses', 'tol', 'jalan tol', 'transportasi', 'stasiun', 'fasilitas'],
+  rekreasi: ['taman & rekreasi', 'taman dan rekreasi', 'taman', 'rekreasi', 'olahraga', 'wisata', 'hiburan'],
+};
+export function normalKategoriAkses(raw) {
+  const k = String(raw ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
+  for (const [kunci, daftar] of Object.entries(SINONIM_AKSES)) if (daftar.includes(k)) return kunci;
+  return null;
+}
+
 // Transaksi: dijual atau disewa. Bawaan: jual.
 export const TRANSAKSI = { jual: { nama: 'Dijual' }, sewa: { nama: 'Disewa' } };
 const SINONIM_TRANSAKSI = {
@@ -47,6 +68,7 @@ const KUNCI = {
   fasilitas: 'fasilitas', youtube: 'youtube', video: 'youtube',
   maps: 'maps', peta: 'maps', googlemaps: 'maps',
   tipe: 'tipe', akses: 'akses', urutan: 'urutan',
+  cicilan: 'cicilan', kpr: 'cicilan', angsuran: 'cicilan',
 };
 const DAFTAR = new Set(['tipe', 'akses', 'fasilitas']); // kunci yang isinya berupa daftar (baris diawali "-")
 const normKunci = (s) => s.toLowerCase().replace(/[\s_]+/g, '');
@@ -316,12 +338,38 @@ export function parseInfo(teks, ctx, opsi = {}) {
   if (!rumah.tipe.length && !(isi.tipe && isi.tipe.item.length)) {
     galat.push(`${ctx} info.txt: belum ada tipe. Tambahkan "tipe:" diikuti baris "- Tipe 30/60 | ${rumah.transaksi === 'sewa' ? '25 juta/tahun' : '850 juta'} | ${JENIS[rumah.jenis].contoh} | Tersedia"`);
   }
+  // Cicilan KPR per bulan (khusus dijual): "9,5 juta/bulan" atau "9,5 juta/bulan | tenor 20 tahun, DP 10%".
+  if (isi.cicilan && isi.cicilan.nilai) {
+    const [angka, ...sisa] = isi.cicilan.nilai.split('|').map((x) => x.trim());
+    const ket = sisa.join(' | ').trim();
+    const { teks, periode } = pisahPeriode(angka);
+    const n = parseHarga(teks);
+    const c = `${ctx} info.txt baris ${isi.cicilan.no}`;
+    if (rumah.transaksi === 'sewa') galat.push(`${c}: cicilan hanya untuk properti dijual. Hapus baris cicilan untuk properti sewa`);
+    else if (periode === 'tahun') galat.push(`${c}: cicilan ditulis per bulan, contoh 9,5 juta/bulan`);
+    else if (!Number.isFinite(n) || n < 5e5 || n > 5e8) galat.push(`${c}: cicilan "${angka}" tidak masuk akal. Tulis lengkap dengan satuan, contoh 9,5 juta/bulan`);
+    else if (ket.length > 120) galat.push(`${c}: catatan cicilan terlalu panjang (maksimal 120 huruf)`);
+    else {
+      const tersedia = rumah.tipe.filter((t) => t.status !== 'Terjual');
+      const termurah = Math.min(...(tersedia.length ? tersedia : rumah.tipe).map((t) => t.harga));
+      if (Number.isFinite(termurah) && n * 12 >= termurah) galat.push(`${c}: cicilan ${angka} per bulan terlalu besar dibanding harga termurah (cicilan setahun sudah melebihi harga). Cek angkanya`);
+      else rumah.cicilan = { harga: n, ket };
+    }
+  }
+
   if (isi.akses) {
     rumah.akses = [];
+    const contohAkses = '"- Rumah Sakit | Mitra Keluarga | 5 menit" (kategori | nama tempat | waktu tempuh)';
     for (const it of isi.akses.item) {
-      const [nama, waktu] = it.teks.split('|').map((x) => x.trim());
-      if (!nama || !waktu) galat.push(`${ctx} info.txt baris ${it.no}: akses harus berbentuk "- Jalan raya utama | 5 menit"`);
-      else rumah.akses.push({ nama, waktu });
+      const bagian = it.teks.split('|').map((x) => x.trim());
+      if (bagian.length > 3 || bagian.length < 2) { galat.push(`${ctx} info.txt baris ${it.no}: akses harus berbentuk ${contohAkses}`); continue; }
+      // Bentuk lama "nama | waktu" tanpa kategori masuk ke "Fasilitas & Akses".
+      const [kat, nama, waktu] = bagian.length === 3 ? bagian : ['akses', bagian[0], bagian[1]];
+      const kunci = normalKategoriAkses(kat);
+      if (!kunci) galat.push(`${ctx} info.txt baris ${it.no}: kategori "${kat}" tidak dikenal. Tulis salah satu: ${Object.values(KATEGORI_AKSES).map((x) => x.nama).join(', ')}`);
+      else if (!nama || !waktu) galat.push(`${ctx} info.txt baris ${it.no}: akses harus berbentuk ${contohAkses}`);
+      else if (!/\d/.test(waktu)) galat.push(`${ctx} info.txt baris ${it.no}: waktu tempuh "${waktu}" harus memakai angka, contoh 5 menit. Kalau belum dicek, hapus barisnya`);
+      else rumah.akses.push({ kategori: kunci, nama, waktu });
     }
     if (!rumah.akses.length) rumah.akses = undefined;
   }
@@ -332,6 +380,7 @@ export function parseInfo(teks, ctx, opsi = {}) {
       ...rumah.fasilitas.map((v) => ['fasilitas', v]),
       ...rumah.tipe.flatMap((t) => [['tipe', t.nama], ['tipe', t.status]]),
       ...(rumah.akses || []).flatMap((a) => [['akses', a.nama], ['akses', a.waktu]]),
+      ...(rumah.cicilan && rumah.cicilan.ket ? [['cicilan', rumah.cicilan.ket]] : []),
     ];
     const sudah = new Set();
     for (const [k, v] of teksSemua) {

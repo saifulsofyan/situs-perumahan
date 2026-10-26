@@ -65,6 +65,7 @@ Contoh isi info.txt:
     youtube: https://youtu.be/xxxxxxxxxxx
     maps: https://maps.app.goo.gl/xxxxxxxx
     urutan: 1
+    cicilan: 5,2 juta/bulan | tenor 20 tahun, DP 10%
     tipe:
     - Tipe 30/60 | 850 juta | LT 60 | LB 30 | KT 2 | KM 1 | Tersedia
     - Tipe 45/84 | 1,3 miliar | LT 84 | LB 45 | KT 3 | KM 2 | Terjual
@@ -99,7 +100,7 @@ Contoh properti yang DISEWAKAN (tambahkan baris transaksi: sewa, dan tulis harga
 
 Aturan singkat:
  - Wajib diisi: nama, lokasi, alamat, developer, sertifikat, ringkas, dan minimal satu tipe.
-   Yang lain boleh dihapus atau dikosongkan: jenis, transaksi, kantor, fasilitas, youtube, maps, akses, urutan.
+   Yang lain boleh dihapus atau dikosongkan: jenis, transaksi, kantor, fasilitas, youtube, maps, akses, urutan, cicilan.
    Pada properti sewa, sertifikat juga boleh dikosongkan. Kolom developer boleh diisi nama pengelola atau pemilik
    (kata "pengelola:" atau "pemilik:" juga diterima sebagai pengganti "developer:").
  - jenis: perumahan, apartemen, atau ruko. Kalau baris jenis dihapus, dianggap perumahan.
@@ -138,6 +139,11 @@ Aturan singkat:
  - youtube: tempel link videonya. Unggah video ke YouTube dengan pilihan Tidak Publik (Unlisted).
  - urutan: angka kecil tampil lebih dulu di beranda. Kalau tidak diisi, urut menurut nama folder.
  - Baris yang diawali tanda # hanya catatan.
+ - cicilan: cicilan KPR per bulan, tampil di bawah "Harga mulai" di halaman proyek. Khusus properti
+   dijual. Tulis angkanya, lalu asumsinya setelah tanda | (tenor dan uang muka), misalnya:
+       cicilan: 9,5 juta/bulan | tenor 20 tahun, DP 10%
+   Angka ini simulasi, bukan penawaran bank. Hitung sendiri atau minta dari marketing, jangan
+   menebak. Kalau dikosongkan atau dihapus, barisnya tidak tampil.
  - akses: tempat penting di sekitar proyek, tampil sebagai kolom per kategori di bagian "Lokasi dan akses".
    Tiap baris: kategori | nama tempat | waktu tempuh (pakai angka). Contoh:
        - Rumah Sakit | Mitra Keluarga | 3 menit
