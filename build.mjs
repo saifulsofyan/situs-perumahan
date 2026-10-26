@@ -177,12 +177,14 @@ const IKON = {
   listrik: svg('<path d="M13 2L5 14h6l-1 8 8-12h-6l1-8z"/>'),
   parkir: svg('<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M10 17V8h3a2.5 2.5 0 0 1 0 5h-3"/>'),
   gedung: svg('<path d="M4 21V9l8-5 8 5v12M4 21h16M10 21v-6h4v6"/>'),
+  api: svg('<path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.2 1.2-3.6 2.4-4.8.3 1.6 1 2.6 2 3C11 8.5 11 5.5 12 3z"/>'),
   centang: svg('<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/>'),
 };
 // Ikon fasilitas dipilih dari kata di namanya. Tidak cocok dengan apa pun: tanda centang.
 const IKON_FASILITAS = [
   [/gate|gerbang|cctv|keaman|satpam|security|24 jam|portal/i, 'aman'],
   [/musala|mushola|masjid|ibadah/i, 'bulan'],
+  [/barbecue|bbq|panggang|api unggun|grill/i, 'api'],
   [/kolam|renang|pool|jacuzzi/i, 'kolam'],
   [/olahraga|jogging|lari|gym|fitness|lapangan|basket|futsal|badminton|tenis/i, 'olahraga'],
   [/taman|bermain|playground|hijau|terbuka|pohon/i, 'rekreasi'],
