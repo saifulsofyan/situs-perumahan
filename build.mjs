@@ -4,7 +4,7 @@
 import { readFileSync, writeFileSync, mkdirSync, cpSync, rmSync, existsSync, readdirSync, renameSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseInfo, slugify, JENIS } from './lib/info.mjs';
+import { parseInfo, slugify, JENIS, KATEGORI_AKSES } from './lib/info.mjs';
 import { daftarFoto, prosesFoto, muatSharp } from './lib/foto.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
@@ -152,11 +152,48 @@ function spekTipe(p, t) {
 }
 
 const DEFAULT_AKSES = [
-  { nama: 'Jalan raya utama', waktu: 'xx menit' },
-  { nama: 'Stasiun atau halte', waktu: 'xx menit' },
-  { nama: 'Sekolah dan pasar', waktu: 'xx menit' },
-  { nama: 'Rumah sakit', waktu: 'xx menit' },
+  { kategori: 'belanja', nama: 'Pusat belanja terdekat', waktu: 'xx menit' },
+  { kategori: 'belanja', nama: 'Pasar atau minimarket', waktu: 'xx menit' },
+  { kategori: 'kesehatan', nama: 'Rumah sakit terdekat', waktu: 'xx menit' },
+  { kategori: 'kesehatan', nama: 'Klinik', waktu: 'xx menit' },
+  { kategori: 'akses', nama: 'Pintu tol', waktu: 'xx menit' },
+  { kategori: 'akses', nama: 'Stasiun atau halte', waktu: 'xx menit' },
 ];
+
+/* ---------- Ikon bagian "Lokasi dan akses" dan "Fasilitas" ---------- */
+const svg = (isi) => `<svg viewBox="0 0 24 24" aria-hidden="true">${isi}</svg>`;
+const IKON = {
+  belanja: svg('<path d="M6 8h12l1 12H5L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>'),
+  kesehatan: svg('<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/>'),
+  pendidikan: svg('<path d="M2 9l10-5 10 5-10 5L2 9z"/><path d="M6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5M22 9v6"/>'),
+  akses: svg('<circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h6"/>'),
+  rekreasi: svg('<path d="M12 3a5 5 0 0 0-4.6 7A4 4 0 0 0 8 18h8a4 4 0 0 0 .6-8A5 5 0 0 0 12 3z"/><path d="M12 18v3"/>'),
+  pin: svg('<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'),
+  aman: svg('<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/>'),
+  bulan: svg('<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>'),
+  kolam: svg('<path d="M3 10c2-2 4-2 6 0s4 2 6 0 4-2 6 0M3 16c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>'),
+  olahraga: svg('<path d="M6 7v10M3 9v6M18 7v10M21 9v6M6 12h12"/>'),
+  air: svg('<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>'),
+  listrik: svg('<path d="M13 2L5 14h6l-1 8 8-12h-6l1-8z"/>'),
+  parkir: svg('<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M10 17V8h3a2.5 2.5 0 0 1 0 5h-3"/>'),
+  gedung: svg('<path d="M4 21V9l8-5 8 5v12M4 21h16M10 21v-6h4v6"/>'),
+  centang: svg('<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/>'),
+};
+// Ikon fasilitas dipilih dari kata di namanya. Tidak cocok dengan apa pun: tanda centang.
+const IKON_FASILITAS = [
+  [/gate|gerbang|cctv|keaman|satpam|security|24 jam|portal/i, 'aman'],
+  [/musala|mushola|masjid|ibadah/i, 'bulan'],
+  [/kolam|renang|pool|jacuzzi/i, 'kolam'],
+  [/olahraga|jogging|lari|gym|fitness|lapangan|basket|futsal|badminton|tenis/i, 'olahraga'],
+  [/taman|bermain|playground|hijau|terbuka|pohon/i, 'rekreasi'],
+  [/jalan|paving|aspal|cor beton|jalur/i, 'akses'],
+  [/drainase|saluran|air bersih|pdam|pam\b|sumur|air tanah|\bair\b/i, 'air'],
+  [/listrik|pln|genset|solar/i, 'listrik'],
+  [/parkir|carport|garasi/i, 'parkir'],
+  [/club ?house|lounge|co-?working|balai|aula|serbaguna/i, 'gedung'],
+  [/minimarket|toko|kafe|cafe|kantin|restoran|food|kuliner|retail/i, 'belanja'],
+];
+const ikonFasilitas = (teks) => IKON[(IKON_FASILITAS.find(([re]) => re.test(teks)) || [null, 'centang'])[1]];
 
 /* ---------- Ilustrasi contoh (dipakai hanya selama belum ada foto) ---------- */
 const SETS = [
@@ -541,9 +578,19 @@ function detailMain(p, idx) {
       </li>`;
   }).join('');
 
-  const fas = (p.fasilitas || []).map((f) => `<li>${m(f)}</li>`).join('');
+  const fas = (p.fasilitas || []).map((f) => `<li><span class="ikon-bulat">${ikonFasilitas(f)}</span><span>${m(f)}</span></li>`).join('');
   // Tanpa isian "akses:" di info.txt: mode contoh menampilkan baris "xx menit" bertanda kuning, mode tayang menyembunyikannya.
-  const akses = (p.akses || (DEMO ? DEFAULT_AKSES : [])).map((x) => `<div><dt>${esc(x.nama)}</dt><dd>${m(x.waktu)}</dd></div>`).join('');
+  const aksesData = p.akses || (DEMO ? DEFAULT_AKSES : []);
+  const kelompok = Object.entries(KATEGORI_AKSES)
+    .map(([k, v]) => ({ k, ...v, isi: aksesData.filter((x) => x.kategori === k) }))
+    .filter((g) => g.isi.length);
+  const kolomSekitar = kelompok.map((g) => `
+        <div class="sek-kol">
+          <span class="ikon-bulat besar">${IKON[g.k]}</span>
+          <h3>${esc(g.nama)}</h3>
+          <p class="sek-sub">${esc(g.ket)}</p>
+          <ul class="sek-daftar">${g.isi.map((x) => `<li><span>${esc(x.nama)}</span><b>${m(x.waktu)}</b></li>`).join('')}</ul>
+        </div>`).join('');
 
   let galeri;
   if (p.foto && p.foto.length) {
@@ -604,7 +651,20 @@ ${seksi('ringkas', 'Ringkasan proyek', '', `<dl class="fakta">
 ${seksi('tipe', `${JENIS[p.jenis].tipeNama} dan harga${sewa ? ' sewa' : ''}`, 'Harga dan ketersediaan dapat berubah. Tanyakan ke marketing untuk angka terbaru.', `<ul class="tipe">${tipeRows}</ul>`)}
 ${fas ? seksi('fasilitas', 'Fasilitas', `Hanya fasilitas yang benar-benar tersedia di ${JENIS[p.jenis].nama.toLowerCase()} ini.`, `<ul class="fasilitas">${fas}</ul>`) : ''}
 ${videoSec}
-${(akses || peta) ? seksi('lokasi', 'Lokasi dan akses', '', `${akses ? `<dl class="fakta">${akses}</dl>\n  ` : ''}${peta}`) : ''}
+${kelompok.length ? `
+<section class="bagian sekitar" id="lokasi" aria-labelledby="h-lokasi">
+  <div class="wrap">
+    <div class="sek-kartu">
+      <div class="sek-kepala">
+        <div><p class="sek-atas">Di sekitar ${m(p.nama)}</p><h2 id="h-lokasi">Lokasi dan akses</h2></div>
+        <p class="sek-ket">Perkiraan waktu tempuh dari lokasi proyek. Waktu sebenarnya bisa berbeda tergantung lalu lintas.</p>
+      </div>
+      <div class="sek-kisi" data-n="${kelompok.length}">${kolomSekitar}
+      </div>
+      ${peta ? `<div class="sek-kaki">${peta}</div>` : ''}
+    </div>
+  </div>
+</section>` : (peta ? seksi('lokasi', 'Lokasi', '', peta) : '')}
 ${caraSection(sewa ? 'sewa' : 'jual')}
 ${faqSection(sewa ? 'sewa' : 'jual')}
 ${lainSec}

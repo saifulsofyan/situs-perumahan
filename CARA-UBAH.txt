@@ -69,7 +69,9 @@ Contoh isi info.txt:
     - Tipe 30/60 | 850 juta | LT 60 | LB 30 | KT 2 | KM 1 | Tersedia
     - Tipe 45/84 | 1,3 miliar | LT 84 | LB 45 | KT 3 | KM 2 | Terjual
     akses:
-    - Stasiun Contoh | 7 menit
+    - Mall & Lifestyle | Pusat Belanja Contoh | 5 menit
+    - Rumah Sakit | Rumah Sakit Contoh | 8 menit
+    - Fasilitas & Akses | Pintu Tol Contoh | 7 menit
 
 Contoh tipe untuk apartemen (tulis jenis: apartemen) dan ruko (tulis jenis: ruko):
 
@@ -136,7 +138,16 @@ Aturan singkat:
  - youtube: tempel link videonya. Unggah video ke YouTube dengan pilihan Tidak Publik (Unlisted).
  - urutan: angka kecil tampil lebih dulu di beranda. Kalau tidak diisi, urut menurut nama folder.
  - Baris yang diawali tanda # hanya catatan.
- - akses: hanya isi jarak atau waktu yang sudah Anda cek sendiri. Kalau dihapus, bagian itu disembunyikan.
+ - akses: tempat penting di sekitar proyek, tampil sebagai kolom per kategori di bagian "Lokasi dan akses".
+   Tiap baris: kategori | nama tempat | waktu tempuh (pakai angka). Contoh:
+       - Rumah Sakit | Mitra Keluarga | 3 menit
+   Kategori yang dikenal: Mall & Lifestyle, Rumah Sakit, Sekolah & Kampus, Fasilitas & Akses
+   (tol, stasiun, halte), Taman & Rekreasi. Penulisan lain yang umum juga dikenali (rs, mall, tol,
+   sekolah, taman), tapi kalau salah ketik, build memberi tahu. Hanya isi waktu yang sudah Anda cek
+   sendiri di Google Maps. Kalau dihapus, bagian itu disembunyikan (tombol Google Maps tetap tampil).
+   Bentuk lama "nama | waktu" tetap diterima dan masuk ke Fasilitas & Akses.
+ - fasilitas: ikon di sebelah tiap fasilitas dipilih otomatis dari katanya (gate, taman, musala, kolam,
+   olahraga, jalan, drainase, parkir, dan lain-lain). Kalau tidak dikenal, tampil tanda centang.
 
 
 C. MENGUBAH HARGA, STATUS TERJUAL, FASILITAS, DLL
