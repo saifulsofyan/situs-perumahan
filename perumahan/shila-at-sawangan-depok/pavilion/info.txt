@@ -1,0 +1,7 @@
+# Tipe Pavilion. Kunci yang tidak ditulis di sini diambil dari info.txt kawasan di folder atasnya.
+tipe:
+- Pavilion | 2,3 miliar | LT 128 | LB 149 | KT 4 | KM 3 | Lantai 2 | Tersedia
+ringkas: Pavilion adalah hunian dua lantai di cluster Lake Vista, Shila at Sawangan, Depok, dengan konsep inner courtyard yang memisahkan dua bangunan. Akses menuju Tol Pamulang dan Sawangan, dengan pilihan kuliner, pertokoan, dan fasilitas olahraga di sekitarnya.
+tentang: Pavilion – Hunian Eksklusif dengan Konsep Inner Courtyard | Pavilion di Shila at Sawangan menghadirkan hunian elegan dalam cluster Lake Vista dengan konsep inner courtyard yang memisahkan dua bangunan, menciptakan tata ruang yang unik, lapang, dan modern. Ideal bagi keluarga yang mengutamakan privasi, kenyamanan, serta ruang lebih leluasa untuk kebersamaan. || Dikembangkan oleh PT Pakuan Tbk (Vasanta Group) bersama Mitsubishi Corporation dan Lotte Land, Shila at Sawangan merupakan kawasan hunian terpadu dengan konsep mixed-use township, memadukan hunian, apartemen, area komersial, serta fasilitas rekreasi dan olahraga. Lebih dari 55% kawasan dialokasikan untuk ruang terbuka hijau, menghadirkan lingkungan asri untuk kualitas hidup yang lebih baik.
+cicilan: 10 juta/bulan | tenor 25 tahun, DP 5%
+urutan: 3

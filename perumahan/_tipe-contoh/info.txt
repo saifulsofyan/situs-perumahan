@@ -17,7 +17,7 @@ cicilan: [ISI] 8 juta/bulan | tenor 25 tahun, DP 5%
 
 # Opsional: uraian lebih panjang yang tampil sebagai bagian "Tentang" di halaman tipe ini. Bentuk: Judul | uraian.
 # Tanpa tanda | seluruh teks dianggap uraian dan judulnya otomatis "Tentang <nama tipe>". Tulis hanya fakta yang benar.
-# tentang: Judul uraian | Uraian satu paragraf, maksimal 1500 huruf.
+# tentang: Judul uraian | Uraian paragraf pertama. || Uraian paragraf kedua (tulis || untuk pindah paragraf). Maksimal 1500 huruf.
 
 # Opsional: video khusus tipe ini. Kalau dihapus, dipakai video proyek.
 # youtube:

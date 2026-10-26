@@ -297,3 +297,5 @@ dialog.dlg-lead{width:min(480px,94vw);margin:auto;position:fixed}
 #tipe-lain h2{margin-bottom:20px}
 .fasilitas .belum{display:inline-block;margin-left:6px;padding:2px 9px;border-radius:99px;background:#fff3cd;color:#6b4e00;font-size:.78rem;font-style:normal;font-weight:700;vertical-align:middle;white-space:nowrap}
 .tentang{margin:0;max-width:62ch;font-size:1.06rem;line-height:1.75;color:var(--redam)}
+.tentang+.tentang{margin-top:16px}
+.sek-daftar b.belum{padding:2px 9px;border-radius:99px;background:#fff3cd;color:#6b4e00;letter-spacing:.02em;text-transform:none;font-size:.78rem}

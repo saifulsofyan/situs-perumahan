@@ -634,7 +634,7 @@ function detailMain(p, idx) {
           <span class="ikon-bulat besar">${IKON[g.k]}</span>
           <h3>${esc(g.nama)}</h3>
           <p class="sek-sub">${esc(g.ket)}</p>
-          <ul class="sek-daftar">${g.isi.map((x) => `<li><span>${esc(x.nama)}</span><b>${m(x.waktu)}</b></li>`).join('')}</ul>
+          <ul class="sek-daftar">${g.isi.map((x) => `<li><span>${esc(x.nama)}</span>${x.belum ? `<b class="belum">${esc(x.waktu)}</b>` : `<b>${m(x.waktu)}</b>`}</li>`).join('')}</ul>
         </div>`).join('');
 
   // Cicilan mulai: hanya untuk properti dijual yang masih ada tipe tersedia. Tanpa isian: mode contoh menampilkan tempat kosong bertanda kuning, mode tayang menyembunyikannya.
@@ -705,7 +705,7 @@ function detailMain(p, idx) {
 </div></section>
 <div class="galeri" tabindex="0" role="region" aria-label="Galeri foto, geser ke samping">${galeri}</div>
 
-${p.tentangIsi ? seksi('tentang', m(p.tentangJudul), '', `<p class="tentang">${m(p.tentangIsi)}</p>`, false) : ''}
+${p.tentangIsi ? seksi('tentang', m(p.tentangJudul), '', p.tentangIsi.split('\n\n').map(t => `<p class="tentang">${m(t)}</p>`).join(''), false) : ''}
 ${seksi('ringkas', 'Ringkasan proyek', '', `<dl class="fakta">
     <div><dt>Lokasi</dt><dd>${m(p.alamat)}</dd></div>
     <div><dt>${sewa ? 'Pengelola' : 'Developer'}</dt><dd>${m(p.developer)}</dd></div>

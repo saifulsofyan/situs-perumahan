@@ -244,6 +244,10 @@ Kalau satu proyek punya beberapa tipe dan Anda ingin tiap tipe punya kartu, hala
  - Di info.txt kawasan JANGAN menulis tipe: dan cicilan:. Dua kunci itu hanya ditulis di info.txt tiap tipe.
  - Jangan mengganti nama folder tipe setelah iklan berjalan, karena link iklannya akan rusak.
  - Di info.txt tipe boleh ada tentang: Judul | uraian untuk bagian "Tentang" di halaman tipe itu (uraian lebih panjang dari ringkas:).
- - Fasilitas yang belum selesai ditulis dengan keterangan di ujung, contoh: Aspen Medical (sedang dibangun).
+   Untuk pindah paragraf di dalam uraian, tulis dua garis tegak berurutan (||) di antara paragraf. Tetap satu baris di info.txt.
+ - Fasilitas yang belum selesai ditulis dengan keterangan di ujung, contoh: Clubhouse (sedang dibangun).
    Di halaman, keterangan itu tampil sebagai lencana kuning kecil. Keterangan yang dikenali: sedang dibangun,
    dalam pembangunan, akan dibangun, segera dibangun, rencana.
+ - Tempat di sekitar proyek yang belum jadi (misalnya rumah sakit yang sedang dibangun) ditulis tanpa waktu tempuh:
+   - Rumah Sakit | Aspen Medical | sedang dibangun
+   Di halaman, tampil nama tempat dengan lencana kuning "sedang dibangun" sebagai ganti menit.
