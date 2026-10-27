@@ -1,0 +1,23 @@
+nama: Perumahan di Ciater BSD
+jenis: perumahan
+transaksi: jual
+lokasi: BSD
+alamat: Ciater BSD
+developer: Pemilik
+sertifikat: SHM
+ringkas: Rumah dua lantai di kawasan Ciater, BSD, dengan 5 kamar tidur, 4 kamar mandi, tanah 428 m² dan bangunan 350 m². Lokasinya strategis, dekat gerbang tol Serpong dan Pamulang, Teras Kota BSD, serta rumah sakit.
+fasilitas: Parkir basement, Gazebo, Taman, Kolam renang
+maps: https://www.google.com/maps/search/Adisya%20%26%20Momoyo/@-6.316183090209961,106.69630432128906,17z?hl=id
+urutan: 2
+tipe:
+- Eksklusif | 4 miliar | LT 428 | LB 350 | KT 5 | KM 4 | Lantai 2 | Tersedia
+akses:
+- Mall & Lifestyle | Teras Kota BSD | 10 menit
+- Mall & Lifestyle | ITC BSD | 15 menit
+- Mall & Lifestyle | AEON Mall | 15 menit
+- Mall & Lifestyle | The Breeze BSD City | 15 menit
+- Rumah Sakit | RS Hermina Serpong | 10 menit
+- Rumah Sakit | Eka Hospital | 15 menit
+- Rumah Sakit | Ris Hospital | 15 menit
+- Fasilitas & Akses | Gerbang Tol Serpong | 10 menit
+- Fasilitas & Akses | Gerbang Tol Pamulang | 15 menit

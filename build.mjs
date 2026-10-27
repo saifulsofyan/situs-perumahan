@@ -414,7 +414,7 @@ function kartu(p, i, base, filter) {
     <h3><a href="${href}" data-int>${m(p.nama)}</a></h3>
     <p class="alamat">${m(p.alamat)}</p>
     <div class="harga-baris">${habis ? `<strong class="habis-teks">${habisTeks(p)}</strong>` : `<small>${hargaMulaiLabel(p)}</small><strong>${m(hargaTeks(p, mt))}</strong>`}</div>
-    <p class="spek-mini">${p.kawasanSlug ? spekTipe(p, p.tipe[0]).slice(0, 2).map((x) => `<span>${m(x)}</span>`).join('') : `<span>${habis ? p.tipe.length + ' tipe' : a.length + ' tipe tersedia'}</span><span>${m(ukuranMulai(p))}</span>`}</p>
+    <p class="spek-mini">${p.kawasanSlug || p.tipe.length === 1 ? spekTipe(p, p.tipe[0]).slice(0, 2).map((x) => `<span>${m(x)}</span>`).join('') : `<span>${habis ? p.tipe.length + ' tipe' : a.length + ' tipe tersedia'}</span><span>${m(ukuranMulai(p))}</span>`}</p>
     <div class="aksi-kartu">
       <a class="tombol tombol-tipis" href="${href}" data-int>Lihat detail</a>
       ${habis ? '' : `<button type="button" class="tombol" data-buka-lead data-p="${p.slug}">Tanya harga</button>`}
@@ -708,7 +708,7 @@ function detailMain(p, idx) {
 ${p.tentangIsi ? seksi('tentang', m(p.tentangJudul), '', p.tentangIsi.split('\n\n').map(t => `<p class="tentang">${m(t)}</p>`).join(''), false) : ''}
 ${seksi('ringkas', 'Ringkasan proyek', '', `<dl class="fakta">
     <div><dt>Lokasi</dt><dd>${m(p.alamat)}</dd></div>
-    <div><dt>${sewa ? 'Pengelola' : 'Developer'}</dt><dd>${m(p.developer)}</dd></div>
+    <div><dt>${sewa ? 'Pengelola' : /^(pemilik|owner)\b/i.test(p.developer) ? 'Dijual oleh' : 'Developer'}</dt><dd>${m(p.developer)}</dd></div>
     ${p.sertifikat ? `<div><dt>Sertifikat</dt><dd>${m(p.sertifikat)}</dd></div>` : ''}
     ${p.kantor ? `<div><dt>Kantor pemasaran</dt><dd>${m(p.kantor)}</dd></div>` : ''}
   </dl>`, false)}
