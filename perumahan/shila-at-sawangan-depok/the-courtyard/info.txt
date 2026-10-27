@@ -1,0 +1,8 @@
+# Tipe The Courtyard (Cluster Tilia). Kunci yang tidak ditulis di sini diambil dari info.txt kawasan di folder atasnya.
+tipe:
+- The Courtyard | 2,3 miliar | LT 218 | LB 109 | KT 3 | KM 4 | Lantai 2 | Tersedia
+developer: Pemilik
+ringkas: The Courtyard adalah hunian dua lantai di Cluster Tilia, kawasan Shila at Sawangan, Depok, dengan posisi hook. Tanah 218 m², bangunan 109 m², 3 kamar tidur, dan 4 kamar mandi.
+fasilitas: One-Gate System, The Creek untuk jogging pagi, Patio, Play Ground, CCTV 24 jam
+youtube: https://www.youtube.com/shorts/1Mdp8elQ7l8
+urutan: 5
