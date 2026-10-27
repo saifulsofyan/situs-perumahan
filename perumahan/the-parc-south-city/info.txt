@@ -1,0 +1,26 @@
+nama: Apartemen The Parc South City Pondok Cabe
+jenis: apartemen
+transaksi: jual
+lokasi: Jakarta
+alamat: Pondok Cabe
+developer: Pemilik
+sertifikat: AJB
+ringkas: Apartemen The Parc South City di Pondok Cabe. Unit 30 m² dengan 1 kamar tidur dan 1 kamar mandi. Lokasinya strategis, dekat gerbang tol Cinere dan Brigif serta Living Plaza Pondok Cabe.
+kantor: Gedung Artha Graha, Jl. Hj. Tutty Alawiyah No.100 Lantai 1 Suite 101, RT.3/RW.4, Pejaten Bar., Kec. Mampang Prpt., Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12760
+fasilitas: Kolam renang 50 meter, Kolam anak, Gym, Lapangan badminton, Jogging track 1.122 meter, Coworking lounge dengan Wi-Fi, Clubhouse, Aula serbaguna, Taman hijau, Playground anak, Access card, Area parkir, Shuttle bus menuju kawasan TB Simatupang dan Universitas Indonesia
+youtube: https://www.youtube.com/shorts/isanmKpcrxw
+maps: https://www.google.com/maps?svid=CAwSHRIbCgNwdnESFENnMHZaeTh4TVhNMGNtMTVkMnB4GAo&um=1&ie=UTF-8&fb=1&gl=id&sa=X&ftid=0x2e69efc9239ce219:0x40041de7b293e190
+urutan: 3
+tipe:
+- Tower Summer | 675 juta | LB 30 | KT 1 | KM 1 | Tersedia
+akses:
+- Mall & Lifestyle | Living Plaza Pondok Cabe | 5 menit
+- Mall & Lifestyle | Cinere Mall | 10 menit
+- Mall & Lifestyle | Cinere Bellevue Mall | 15 menit
+- Mall & Lifestyle | Pondok Indah Mall | 25 menit
+- Rumah Sakit | Mayapada Hospital Jakarta Selatan | 15 menit
+- Rumah Sakit | Siloam Hospitals TB Simatupang | 20 menit
+- Rumah Sakit | RSUP Fatmawati | 20 menit
+- Fasilitas & Akses | Gerbang Tol Cinere | 5 menit
+- Fasilitas & Akses | Gerbang Tol Brigif | 10 menit
+- Fasilitas & Akses | Gerbang Tol Pamulang | 15 menit
