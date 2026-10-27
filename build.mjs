@@ -2,11 +2,12 @@
 // Membuat situs statis dari folder perumahan/ dan data/rumah.json. Jalankan: npm run build  (atau: node build.mjs)
 // Hasil ada di folder "situs/" (Cloudflare Pages membuatnya sendiri tiap kali ada perubahan di GitHub).
 import { readFileSync, writeFileSync, mkdirSync, cpSync, rmSync, existsSync, readdirSync, renameSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { join, dirname, extname } from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { parseInfo, slugify, JENIS, KATEGORI_AKSES, gabungInfo, petakanGalat, jadikanHalamanTipe } from './lib/info.mjs';
 import { daftarFoto, prosesFoto, muatSharp } from './lib/foto.mjs';
+import { daftarVideo, periksaVideo, tipeVideo, MAKS_VIDEO } from './lib/video.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 // Kode isi file tampilan dan skrip, ditempel di alamatnya (?v=...), supaya peramban pasti memuat yang baru setelah ada perubahan.
@@ -54,6 +55,19 @@ const slugDari = new Map();
 const cariInfo = (d) => readdirSync(d).find((f) => /^info(\.txt)*$/i.test(f));
 const galatSekali = new Set();
 const tambahGalat = (...g) => { for (const x of g) if (!galatSekali.has(x)) { galatSekali.add(x); galat.push(x); } };
+const peringatanVideo = [];
+// Daftar video di satu folder, sudah diperiksa (ukuran, format, kodek). Nama video yang bermasalah dicatat sebagai galat.
+function ambilVideo(dir, ctx) {
+  const { video, ditolak } = daftarVideo(dir);
+  for (const f of ditolak) tambahGalat(`${ctx} ${f}: format video ini belum didukung. Ubah ke MP4 (H.264) lalu unggah ulang`);
+  if (video.length > MAKS_VIDEO) tambahGalat(`${ctx} ada ${video.length} file video, maksimal ${MAKS_VIDEO} per folder`);
+  for (const f of video) {
+    const r = periksaVideo(dir, f, ctx);
+    tambahGalat(...r.galat);
+    for (const w of r.peringatan) if (!peringatanVideo.includes(w)) peringatanVideo.push(w);
+  }
+  return video;
+}
 for (const folder of folders) {
   const slug = slugify(folder);
   if (!slug) { galat.push(`folder "${folder}": nama folder harus memuat huruf atau angka`); continue; }
@@ -66,6 +80,7 @@ for (const folder of folders) {
   const teksInfo = readFileSync(join(dir, infoFile), 'utf8');
   const { foto, ditolak } = daftarFoto(dir);
   for (const f of ditolak) galat.push(`[${folder}] ${f}: format HEIC/HEIF belum didukung. Simpan sebagai JPG`);
+  const videoDir = ambilVideo(dir, `[${folder}]`);
   // Subfolder yang punya info.txt = satu tipe, dengan kartu dan halamannya sendiri.
   const subTipe = readdirSync(dir, { withFileTypes: true })
     .filter((d) => d.isDirectory() && !/^[_.]/.test(d.name) && cariInfo(join(dir, d.name)))
@@ -75,7 +90,7 @@ for (const folder of folders) {
     const { rumah, galat: g } = parseInfo(teksInfo, `[${folder}]`, { produksi: !DEMO });
     galat.push(...g);
     if (!DEMO && !foto.length) galat.push(`[${folder}] belum ada foto. Mode tayang (demo:false) wajib memakai foto asli. Taruh foto JPG, PNG, atau WebP di folder ini`);
-    daftarRumah.push({ ...rumah, slug, folder, fileFoto: foto });
+    daftarRumah.push({ ...rumah, slug, folder, fileFoto: foto, fileVideo: videoDir, fileVideoKawasan: [] });
     continue;
   }
   subTipe.forEach((sub, idx) => {
@@ -90,9 +105,10 @@ for (const folder of folders) {
     tambahGalat(...g.galat, ...petakanGalat(gp, g.peta));
     jadikanHalamanTipe(rumah, ctxT, galat);
     const ft = daftarFoto(subDir);
+    const videoTipe = ambilVideo(subDir, ctxT);
     for (const f of ft.ditolak) galat.push(`${ctxT} ${f}: format HEIC/HEIF belum didukung. Simpan sebagai JPG`);
     if (!DEMO && !ft.foto.length && !foto.length) galat.push(`${ctxT} belum ada foto. Mode tayang (demo:false) wajib memakai foto asli. Taruh foto JPG, PNG, atau WebP di folder tipe ini`);
-    daftarRumah.push({ ...rumah, slug: slugT, folder: `${folder}/${sub}`, kawasanSlug: slug, kawasanFolder: folder, fileFoto: ft.foto, fileFotoKawasan: foto, urutanTipe: g.urutanTipe ?? 1000 + idx });
+    daftarRumah.push({ ...rumah, slug: slugT, folder: `${folder}/${sub}`, kawasanSlug: slug, kawasanFolder: folder, fileFoto: ft.foto, fileFotoKawasan: foto, fileVideo: videoTipe, fileVideoKawasan: videoDir, urutanTipe: g.urutanTipe ?? 1000 + idx });
   });
 }
 
@@ -188,7 +204,7 @@ function spekTipe(p, t) {
     return r;
   }
   if (typeof t.lt === 'number') r.push(`Tanah ${t.lt} m²`);
-  r.push(`Bangunan ${t.lb} m²`);
+  if (typeof t.lb === 'number') r.push(`Bangunan ${t.lb} m²`);
   if (typeof t.lantai === 'number') r.push(`${t.lantai} lantai`);
   if (typeof t.kt === 'number') r.push(`${t.kt} kamar tidur`);
   if (typeof t.km === 'number') r.push(`${t.km} kamar mandi`);
@@ -676,10 +692,16 @@ function detailMain(p, idx) {
   }
 
   const yt = String(p.youtube || '').replace(/[^A-Za-z0-9_-]/g, '');
-  const videoSec = (yt || DEMO) ? seksi('video', 'Tonton videonya', 'Video dimuat saat Anda menekan tombol putar, supaya halaman tetap cepat dibuka di HP.', `<div class="video"${yt ? ` data-yt="${yt}"` : ''} data-judul="Video ${esc(p.nama)}">
+  const videoFile = p.videoFile || [];
+  // Poster video unggahan: foto pertama (versi kecil), supaya sebelum diputar yang tampak foto rumah, bukan kotak hitam.
+  const f0 = p.foto && p.foto[0];
+  const poster = f0 ? ` poster="${base}foto/${f0.dir || p.slug}/${esc((f0.kecil || f0).file)}"` : '';
+  const blokYt = yt || (DEMO && !videoFile.length) ? `<div class="video"${yt ? ` data-yt="${yt}"` : ''} data-judul="Video ${esc(p.nama)}">
     <button type="button" class="video-putar" aria-label="Putar video ${esc(p.nama)}"><span class="segitiga"></span></button>
-    ${yt ? '' : '<p class="video-ket"><mark class="isi">Video belum dipasang. Isi ID YouTube di data perumahan.</mark></p>'}
-  </div>`, false) : '';
+    ${yt ? '' : '<p class="video-ket"><mark class="isi">Video belum dipasang. Isi link YouTube di info.txt, atau taruh file video MP4 di folder rumah ini.</mark></p>'}
+  </div>` : '';
+  const blokFile = videoFile.map((v, i) => `<div class="video-file"><video controls preload="none" playsinline${poster} aria-label="Video ${esc(p.nama)}${videoFile.length > 1 ? `, bagian ${i + 1}` : ''}"><source src="${base}${v.src}" type="${v.type}">Peramban Anda tidak mendukung pemutar video.</video></div>`).join('\n  ');
+  const videoSec = (blokYt || blokFile) ? seksi('video', 'Tonton videonya', 'Video dimuat saat Anda menekan tombol putar, supaya halaman tetap cepat dibuka di HP.', [blokYt, blokFile].filter(Boolean).join('\n  '), false) : '';
 
   const peta = p.maps
     ? `<a class="tombol tombol-tipis peta" href="${esc(p.maps)}" target="_blank" rel="noopener">Buka di Google Maps</a>`
@@ -805,8 +827,33 @@ for (const p of data.perumahan) {
     if (!p.kartu && k.kartu) { p.kartu = { ...k.kartu, dir: p.kawasanSlug }; p.og = k.og; p.ogDir = p.kawasanSlug; }
   }
 }
+// Video unggahan: disalin apa adanya (tidak dikonversi) ke video/<folder>/, nama file memuat kode isinya supaya video yang diganti langsung tampil baru.
+// Video milik tipe dipakai kalau ada; kalau tidak, dipakai video di folder proyek.
+const videoSalinan = new Map();
+function salinVideo(dirSumber, nama, slugKeluar) {
+  const kunci = `${dirSumber}/${nama}`;
+  if (videoSalinan.has(kunci)) return videoSalinan.get(kunci);
+  const buf = readFileSync(join(dirSumber, nama));
+  const id = createHash('sha1').update(buf).digest('hex').slice(0, 8);
+  const dasar = slugify(nama.replace(/\.[^.]+$/, '')) || 'video';
+  const file = `${dasar}-${id}${extname(nama).toLowerCase()}`;
+  mkdirSync(join(OUT, 'video', slugKeluar), { recursive: true });
+  writeFileSync(join(OUT, 'video', slugKeluar, file), buf);
+  const r = { src: `video/${slugKeluar}/${file}`, type: tipeVideo(nama), mb: buf.length / 1048576 };
+  videoSalinan.set(kunci, r);
+  return r;
+}
+let jumlahVideo = 0;
+for (const p of data.perumahan) {
+  const sendiri = p.fileVideo.length > 0;
+  const files = sendiri ? p.fileVideo : p.fileVideoKawasan;
+  const dirSumber = join(RUMAH_DIR, sendiri ? p.folder : (p.kawasanFolder || p.folder));
+  const slugKeluar = sendiri ? p.slug : (p.kawasanSlug || p.slug);
+  p.videoFile = files.map((f) => salinVideo(dirSumber, f, slugKeluar));
+  jumlahVideo += p.videoFile.length;
+}
 if (galat.length) berhenti();
-writeFileSync(join(OUT, '_headers'), '/foto/*\n  Cache-Control: public, max-age=31536000, immutable\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n');
+writeFileSync(join(OUT, '_headers'), '/foto/*\n  Cache-Control: public, max-age=31536000, immutable\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n/video/*\n  Cache-Control: public, max-age=31536000, immutable\n');
 
 const namaLokasi = data.lokasi.map((l) => l.nama).join(', ');
 const ogHome = C.ogImage || '';
@@ -858,8 +905,10 @@ console.log(`Selesai: ${1 + data.perumahan.length} halaman di ${FINAL} (${DEMO ?
 console.log(`Foto: ${jumlahFoto} file, total ${(byteFoto / 1024 / 1024).toFixed(1)} MB ${sharp ? 'setelah dikecilkan' : '(tidak dikecilkan)'}`);
 console.log('Jenis: ' + jenisAda.map((j) => `${JENIS[j].nama} (${data.perumahan.filter((p) => p.jenis === j).length})`).join(', '));
 console.log('Transaksi: ' + [['Dijual', adaJual ? data.perumahan.filter((p) => !sewaP(p)).length : 0], ['Disewa', data.perumahan.filter(sewaP).length]].filter(([, n]) => n).map(([k, n]) => `${k} (${n})`).join(', '));
+console.log(`Video: ${jumlahVideo} file`);
+for (const w of peringatanVideo) console.warn('Peringatan: ' + w);
 console.log('Lokasi: ' + data.lokasi.map((l) => `${l.nama} (${data.perumahan.filter((p) => p.lokasi === l.slug).length})`).join(', '));
 for (const p of data.perumahan) {
   const a = avail(p).length;
-  console.log(`  - ${p.slug}: ${p.nama} [${p.jenis}${sewaP(p) ? ', sewa' : ''}], ${p.lokasiNama}, ${a} dari ${p.tipe.length} tipe tersedia, ${p.foto.length} foto${p.youtube ? ', ada video' : ''}`);
+  console.log(`  - ${p.slug}: ${p.nama} [${p.jenis}${sewaP(p) ? ', sewa' : ''}], ${p.lokasiNama}, ${a} dari ${p.tipe.length} tipe tersedia, ${p.foto.length} foto${p.youtube ? ', ada video YouTube' : ''}${p.videoFile && p.videoFile.length ? `, ${p.videoFile.length} file video` : ''}`);
 }

@@ -235,6 +235,9 @@ mark.isi{background:#FFE7A8;color:var(--daun-tua);padding:0 .25em;border-radius:
 .video-putar{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;cursor:pointer;display:grid;place-items:center}
 .segitiga{width:72px;height:72px;border-radius:50%;background:var(--lampu);display:grid;place-items:center}
 .segitiga::after{content:"";margin-left:6px;border-left:20px solid var(--daun-tua);border-top:12px solid transparent;border-bottom:12px solid transparent}
+.video-file{max-width:780px}
+.video-file video{display:block;width:100%;max-height:min(80vh,680px);border-radius:18px;background:#000;object-fit:contain}
+.video+.video-file,.video-file+.video-file{margin-top:16px}
 .video-ket{position:absolute;left:16px;right:16px;bottom:14px;color:#D9EBE2;font-size:.9rem}
 
 .langkah{list-style:none;margin:0;padding:0;counter-reset:l;max-width:740px}

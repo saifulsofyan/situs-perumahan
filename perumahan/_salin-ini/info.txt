@@ -29,6 +29,7 @@ kantor: [ISI] Alamat kantor pemasaran (boleh dikosongkan)
 fasilitas: One gate system, Taman bermain anak, Jalan paving
 
 # Video dari YouTube: tempel link-nya saja. Kalau belum ada video, kosongkan.
+# Selain (atau ganti) YouTube, boleh juga menaruh file video MP4 (maksimal 25 MB) langsung di folder ini, sama seperti foto.
 youtube:
 # Link Google Maps: dari tombol Bagikan di Google Maps. Boleh dikosongkan.
 maps:
@@ -41,6 +42,7 @@ urutan: 1
 # Ukuran yang wajib tergantung jenis:
 #   perumahan: LT (luas tanah), LB (luas bangunan), KT (kamar tidur), KM (kamar mandi)
 #              contoh: LT 60 | LB 30 | KT 2 | KM 1
+#              LB boleh dihapus kalau belum diketahui, contoh: LT 126 | KT 2 | KM 2
 #   apartemen: LB (luas unit), KT (kamar tidur, tulis KT 0 untuk studio), KM (kamar mandi)
 #              contoh: LB 36 | KT 2 | KM 1
 #   ruko:      LT (luas tanah), LB (luas bangunan), Lantai (jumlah lantai); KM boleh ditambah

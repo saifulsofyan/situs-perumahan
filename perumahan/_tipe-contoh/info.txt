@@ -20,6 +20,7 @@ cicilan: [ISI] 8 juta/bulan | tenor 25 tahun, DP 5%
 # tentang: Judul uraian | Uraian paragraf pertama. || Uraian paragraf kedua (tulis || untuk pindah paragraf). Maksimal 1500 huruf.
 
 # Opsional: video khusus tipe ini. Kalau dihapus, dipakai video proyek.
+# Boleh juga menaruh file video MP4 (maksimal 25 MB) di folder tipe ini; video file di folder tipe dipakai sebelum video di folder proyek.
 # youtube:
 
 # Urutan antar tipe di proyek yang sama (angka kecil lebih dulu). Boleh dihapus.

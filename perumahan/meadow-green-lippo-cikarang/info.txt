@@ -1,0 +1,19 @@
+nama: Cluster Meadow Green Lippo Cikarang
+jenis: perumahan
+transaksi: jual
+lokasi: Cikarang
+alamat: Cibatu, Cikarang Selatan, Kabupaten Bekasi, Jawa Barat 17530
+developer: Pemilik
+sertifikat: SHM
+ringkas: Rumah siap huni di Cluster Meadow Green Lippo Cikarang, Cibatu. Tanah 126 m² dengan 2 kamar tidur dan 2 kamar mandi, full furnish. Lokasinya dekat gerbang tol Cibatu dan Mall Lippo Cikarang.
+kantor: Gedung Artha Graha, Jl. Hj. Tutty Alawiyah No.100 Lantai 1 Suite 101, RT.3/RW.4, Pejaten Bar., Kec. Mampang Prpt., Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12760
+fasilitas: Akses jalan 2 jalur besar, Full furnish lengkap
+maps: https://www.google.com/maps?sca_esv=a336b5ca07a741fd&sxsrf=APpeQns6vvqhwOFyU0VUEaZfSzLdy3ODtg:1793070257551&biw=1422&bih=650&uact=5&gs_lp=Egxnd3Mtd2l6LXNlcnAiJ21hcCBjbHVzdGVyIG1lYWRvdyBncmVlbiBsaXBwbyBjaWthcmFuZzIFEAAY7wUyCBAAGKIEGIAEMgUQABjvBTIFEAAY7wUyBRAAGO8FSNHVB1C70AdYqdMHcAN4AZABAJgB1gSgAfUNqgEJMi0xLjAuMS4yuAEDyAEA-AEBmAIEoALqAsICChAAGEcY1gQYsAOYAwCIBgGQBgeSBwUzLjAuMaAHuxmyBwMyLTG4B5ECwgcDMy00yAczgAgB&um=1&ie=UTF-8&fb=1&gl=id&sa=X&geocode=KUVoeyhRmmkuMWSC_6hwy0uI&daddr=Jl.+Cemara+Hijau+IV+No.27,+Cibatu,+Cikarang+Sel.,+Kabupaten+Bekasi,+Jawa+Barat+17530
+urutan: 4
+tipe:
+- Meadow | 1,5 miliar | LT 126 | KT 2 | KM 2 | Tersedia
+akses:
+- Fasilitas & Akses | Gerbang Tol Cibatu | 10 menit
+- Fasilitas & Akses | Gerbang Tol Cikarang Barat | 15 menit
+- Mall & Lifestyle | Mall Lippo Cikarang | 10 menit
+- Taman & Rekreasi | Waterboom Lippo Cikarang | 10 menit

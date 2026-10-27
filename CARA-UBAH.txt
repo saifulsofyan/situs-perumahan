@@ -132,7 +132,9 @@ Aturan singkat:
    Harga "mulai" di kartu dihitung adil dengan membandingkan per bulan.
  - Satuan tipe: LT luas tanah, LB luas bangunan (atau luas unit), KT kamar tidur, KM kamar mandi, Lantai jumlah lantai.
    Yang wajib tergantung jenis:
-      perumahan: LT, LB, KT, KM          contoh: LT 60 | LB 30 | KT 2 | KM 1
+      perumahan: LT, KT, KM (LB boleh   contoh: LT 60 | LB 30 | KT 2 | KM 1
+                 dikosongkan kalau        atau tanpa LB: LT 126 | KT 2 | KM 2
+                 belum diketahui)
       apartemen: LB, KT, KM              contoh: LB 36 | KT 2 | KM 1   (studio: KT 0)
       ruko:      LT, LB, Lantai          contoh: LT 72 | LB 180 | Lantai 3
    Ukuran lain boleh ditambah kalau relevan, misalnya KM pada ruko.
@@ -272,3 +274,20 @@ LOKASI DAN TOMBOL "LAINNYA"
  - Mengubah daftar tombol: di data/rumah.json, di dalam "config", tambahkan baris
      "lokasiUtama": ["BSD", "Depok", "Jakarta", "Tangerang", "Bogor"],
    Daftar kosong ([]) berarti setiap area punya tombol sendiri dan tombol "Lainnya" tidak dipakai.
+
+VIDEO: LINK YOUTUBE DAN FILE VIDEO
+ - Ada dua cara memasang video, dan keduanya boleh dipakai bersamaan:
+   1. Link YouTube: tulis youtube: di info.txt (cocok untuk video panjang atau besar).
+   2. File video: taruh file video langsung di folder rumah (atau folder tipe), sama seperti menaruh foto.
+ - Syarat file video: format MP4 (H.264) atau WebM, ukuran maksimal 25 MB per file, maksimal 3 file per folder. Nama file bebas (tur-rumah.mp4).
+   Format lain (MOV, AVI, MKV) dan MP4 hasil rekaman iPhone yang memakai HEVC akan ditolak saat build, lengkap dengan petunjuknya.
+   Batas 25 MB sama dengan batas unggah lewat web GitHub dan batas file di Cloudflare.
+ - Video milik tipe (di folder tipe) yang dipakai kalau ada. Kalau folder tipe tidak punya video, dipakai video di folder proyek.
+ - Di halaman rumah, video tampil di bagian "Tonton videonya". Videonya baru diunduh saat tombol putar ditekan, jadi halaman tetap cepat.
+   Sebelum diputar yang tampak adalah foto pertama rumah itu.
+ - Cara mengecilkan video yang lebih dari 25 MB:
+   a. HandBrake (gratis): buka video, pilih preset "Fast 720p30", format MP4, centang "Web Optimized", lalu Start. Satu menit video biasanya 10 sampai 20 MB.
+      Untuk rekaman iPhone, ini sekaligus mengubah HEVC menjadi H.264.
+   b. Atau dengan ffmpeg (video mendatar):  ffmpeg -i asli.mp4 -vf scale=-2:720 -c:v libx264 -crf 28 -preset slow -c:a aac -b:a 96k -movflags +faststart video.mp4
+      Untuk video tegak dari HP, ganti scale=-2:720 dengan scale=720:-2
+ - Video yang masih terlalu besar setelah dikecilkan: unggah ke YouTube lalu tempel link-nya di youtube:.
