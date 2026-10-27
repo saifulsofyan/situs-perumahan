@@ -105,6 +105,17 @@ for (const p of daftarRumah) {
   if (ls && !lokasiMap.has(ls)) lokasiMap.set(ls, { slug: ls, nama: p.lokasiNama });
 }
 data.lokasi = [...lokasiMap.values()].sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
+// Lokasi utama punya tombol sendiri di beranda. Rumah di area lain otomatis masuk tombol "Lainnya" (kartunya tetap menampilkan nama areanya).
+// Daftar ini bisa diganti lewat "lokasiUtama" di data/rumah.json. Daftar kosong ([]) = setiap area punya tombol sendiri, tanpa "Lainnya".
+const LOKASI_UTAMA = Array.isArray(C.lokasiUtama) ? C.lokasiUtama : ['BSD', 'Depok', 'Jakarta', 'Tangerang'];
+if (C.lokasiUtama !== undefined && !Array.isArray(C.lokasiUtama)) galat.push('data/rumah.json: "lokasiUtama" harus berupa daftar nama, contoh ["BSD", "Depok"]');
+const UTAMA = new Set(LOKASI_UTAMA.map((x) => slugify(String(x))).filter(Boolean));
+const grupLokasi = (p) => (UTAMA.size === 0 || UTAMA.has(p.lokasi) ? p.lokasi : 'lainnya');
+// Tombol lokasi di beranda: lokasi utama yang punya rumah (urut seperti di daftar lokasiUtama), lalu "Lainnya".
+const lokasiTampil = UTAMA.size === 0
+  ? data.lokasi
+  : [...LOKASI_UTAMA.map((x) => lokasiMap.get(slugify(String(x)))).filter(Boolean), { slug: 'lainnya', nama: 'Lainnya' }]
+      .filter((l, i, arr) => arr.findIndex((y) => y.slug === l.slug) === i);
 // Tipe satu kawasan berdampingan, berurutan menurut urutan tipe.
 daftarRumah.sort((a, b) => a.urutan - b.urutan || (a.kawasanSlug || a.slug).localeCompare(b.kawasanSlug || b.slug) || (a.urutanTipe ?? 0) - (b.urutanTipe ?? 0) || a.slug.localeCompare(b.slug));
 data.perumahan = daftarRumah;
@@ -404,7 +415,7 @@ function kartu(p, i, base, filter) {
   const a = avail(p), habis = a.length === 0, mt = minTipe(p);
   const href = `${base}rumah/${p.slug}/`;
   return `
-<article class="kartu"${filter ? ` data-lokasi="${p.lokasi}" data-jenis="${p.jenis}" data-transaksi="${p.transaksi}"` : ''}>
+<article class="kartu"${filter ? ` data-lokasi="${grupLokasi(p)}" data-jenis="${p.jenis}" data-transaksi="${p.transaksi}"` : ''}>
   <div class="kartu-foto-wrap" style="position:relative">
     <a class="kartu-foto" href="${href}" data-int tabindex="-1" aria-hidden="true">${fotoKartu(p, i, base, filter && i < 2)}</a>
     <span class="chip-lokasi">${esc(lok.nama)}</span>
@@ -542,12 +553,12 @@ ${main}
 
 /* ---------- Beranda ---------- */
 function berandaMain() {
-  const tiles = data.lokasi.map((l, i) => {
-    const n = data.perumahan.filter((p) => p.lokasi === l.slug).length;
-    return `<a class="tile t${i % 4}" href="#katalog" data-lokasi="${l.slug}">${IKON_PIN}<span class="tile-nama">${esc(l.nama)}</span><span class="tile-jumlah">${n} ${PROP}</span></a>`;
+  const tiles = lokasiTampil.map((l, i) => {
+    const n = data.perumahan.filter((p) => grupLokasi(p) === l.slug).length;
+    return `<a class="tile t${i % 4}" href="#katalog" data-lokasi="${l.slug}">${IKON_PIN}<span class="tile-nama">${esc(l.nama)}</span><span class="tile-jumlah">${n ? `${n} ${PROP}` : 'Tanya area ini'}</span></a>`;
   }).join('');
   const tabs = [`<button type="button" class="tab" aria-pressed="true" data-lokasi="semua">Semua lokasi</button>`]
-    .concat(data.lokasi.map((l) => `<button type="button" class="tab" aria-pressed="false" data-lokasi="${l.slug}">${esc(l.nama)}</button>`)).join('');
+    .concat(lokasiTampil.map((l) => `<button type="button" class="tab" aria-pressed="false" data-lokasi="${l.slug}">${esc(l.nama)}</button>`)).join('');
   // Pilihan jenis hanya muncul kalau ada lebih dari satu jenis.
   const tabsJenis = banyakJenis
     ? [`<button type="button" class="tab" aria-pressed="true" data-jenis="semua" data-nama="${PROP}">Semua jenis (${data.perumahan.length})</button>`]
@@ -596,7 +607,10 @@ function berandaMain() {
   ${saring}
   <p class="hitung" id="hitung" data-sebut="${PROP}" aria-live="polite">${data.perumahan.length} ${PROP}</p>
   <div class="grid">${cards}</div>
-  <p class="kosong" id="kosong" hidden>Belum ada ${PROP} yang cocok dengan pilihan ini. Hubungi kami untuk info terbaru.</p>
+  <div class="kosong" id="kosong" hidden>
+    <p>Belum ada ${PROP} yang cocok dengan pilihan ini. Mencari di area lain? Ceritakan kebutuhan Anda, tim marketing kami bantu carikan.</p>
+    <button type="button" class="tombol tombol-tipis" data-buka-lead>Tanya lewat WhatsApp</button>
+  </div>
 </div></section>
 ${caraSection()}
 ${faqSection()}
@@ -693,7 +707,7 @@ function detailMain(p, idx) {
 <div class="wrap">
   <nav class="remah" aria-label="Posisi halaman">
     <a href="${base}" data-int>Beranda</a><span aria-hidden="true">/</span>
-    <a href="${base}#${p.lokasi}" data-int>${esc(lok.nama)}</a><span aria-hidden="true">/</span>
+    <a href="${base}#${grupLokasi(p)}" data-int>${esc(lok.nama)}</a><span aria-hidden="true">/</span>
     <span aria-current="page">${m(p.nama)}</span>
   </nav>
 </div>

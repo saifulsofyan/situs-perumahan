@@ -122,7 +122,7 @@ mark.isi{background:#FFE7A8;color:var(--daun-tua);padding:0 .25em;border-radius:
 .grid{display:grid;gap:20px;grid-template-columns:1fr}
 @media (min-width:640px){.grid{grid-template-columns:1fr 1fr}}
 @media (min-width:1000px){.grid{grid-template-columns:repeat(3,1fr)}}
-.kosong{padding:24px 0;color:var(--redam)}
+.kosong{padding:24px 0;color:var(--redam);display:grid;justify-items:start;gap:14px}
 
 .kartu{display:flex;flex-direction:column;background:#fff;border:1px solid var(--garis);border-radius:18px;overflow:hidden}
 .kartu-foto{position:relative;display:block;aspect-ratio:4/3;background:var(--langit)}

@@ -17,6 +17,7 @@ jenis: perumahan
 transaksi: jual
 lokasi: [ISI] Nama kota atau area, contoh: Depok
 # Tulis nama lokasi yang sama persis untuk semua rumah di area yang sama (Depok dan depok dianggap sama).
+# BSD, Depok, Jakarta, dan Tangerang punya tombol sendiri di beranda. Area lain (misalnya Bogor atau Bekasi) otomatis masuk tombol "Lainnya".
 alamat: [ISI] Kecamatan dan kota, contoh: Sawangan, Depok
 developer: [ISI] PT nama developer
 # Sertifikat: boleh dikosongkan untuk properti sewa, wajib untuk properti dijual.

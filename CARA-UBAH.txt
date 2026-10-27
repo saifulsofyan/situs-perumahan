@@ -259,3 +259,16 @@ GAMBAR LATAR BERANDA
  - Pakai gambar lebar (perbandingan sekitar 3:1, lebar minimal 1600 px). Situs otomatis membuat versi untuk komputer dan HP.
    Gambar yang agak gelap paling cocok karena teks di atasnya berwarna putih; situs menambah lapisan gelap tipis supaya teks tetap terbaca.
  - Menghapus gambar: hapus file latar-beranda dari folder assets. Bagian atas beranda kembali polos berwarna hijau muda.
+
+LOKASI DAN TOMBOL "LAINNYA"
+ - Di beranda, tombol lokasi (dan kotak "Pilih lokasi" di bagian atas) dibuat dari isian lokasi: di tiap info.txt.
+ - BSD, Depok, Jakarta, dan Tangerang punya tombol sendiri. Rumah di area lain (contoh: Bogor, Bekasi, Cikarang)
+   otomatis masuk tombol "Lainnya". Kartu rumahnya tetap menampilkan nama areanya (Bogor), dan alamat lengkapnya tetap di alamat:.
+ - Jadi cukup tulis lokasi: Bogor di info.txt rumah itu. Tidak perlu mengubah apa pun lagi.
+ - Tulis lokasi persis seperti daftar di atas supaya masuk tombolnya (BSD, Depok, Jakarta, Tangerang). Tangerang Selatan
+   atau Tangsel dianggap area lain dan masuk "Lainnya", jadi tulis lokasi: BSD untuk rumah di BSD.
+ - Tombol BSD, Depok, Jakarta, dan Tangerang hanya tampil kalau sudah ada rumahnya. Tombol "Lainnya" selalu tampil.
+   Kalau belum ada rumahnya, pengunjung melihat ajakan untuk bertanya lewat WhatsApp.
+ - Mengubah daftar tombol: di data/rumah.json, di dalam "config", tambahkan baris
+     "lokasiUtama": ["BSD", "Depok", "Jakarta", "Tangerang", "Bogor"],
+   Daftar kosong ([]) berarti setiap area punya tombol sendiri dan tombol "Lainnya" tidak dipakai.
