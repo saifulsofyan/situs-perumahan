@@ -89,6 +89,16 @@ mark.isi{background:#FFE7A8;color:var(--daun-tua);padding:0 .25em;border-radius:
   .hero-grid{grid-template-columns:1.05fr .95fr;align-items:center;gap:64px}
 }
 
+/* Hero dengan foto latar (file assets/latar-beranda.*): foto gelap, jadi teks dibuat terang dan foto diberi lapisan gelap */
+.hero-foto{--tindih:linear-gradient(180deg,rgba(7,18,28,.74) 0%,rgba(7,18,28,.62) 100%);background-color:#0B1A28;background-size:cover;background-position:center 55%;background-repeat:no-repeat;color:#fff}
+@media (min-width:900px){.hero-foto{--tindih:linear-gradient(90deg,rgba(7,18,28,.84) 0%,rgba(7,18,28,.66) 46%,rgba(7,18,28,.36) 100%)}}
+.hero-foto .lead{color:#E8EFF4}
+.hero-foto .catatan{color:#C5D2DB}
+.hero-foto .tombol.tombol-tipis{color:#fff;border-color:rgba(255,255,255,.85)}
+.hero-foto .tombol.tombol-tipis:hover{background:rgba(255,255,255,.14)}
+.hero-foto .tile{box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)}
+.hero-foto :focus-visible{outline-color:#fff}
+
 /* Janji */
 .janji{list-style:none;margin:0;padding:0;display:grid;gap:0 32px}
 .janji li{display:grid;grid-template-columns:44px 1fr;gap:2px 14px;padding:18px 0;border-top:1px solid var(--garis)}

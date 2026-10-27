@@ -435,8 +435,12 @@ const NAV_KAT = (() => {
   return a;
 })();
 
+/* ---------- Foto latar hero beranda (opsional) ---------- */
+// Taruh gambar bernama latar-beranda.jpg (atau .jpeg, .png, .webp) di folder assets. Tanpa file ini hero tetap polos.
+let LATAR = null;
+
 /* ---------- Kerangka halaman ---------- */
-function page({ depth, title, desc, main, canonicalPath, ogImage, pageInfo }) {
+function page({ depth, title, desc, main, canonicalPath, ogImage, pageInfo, headExtra = '' }) {
   const base = '../'.repeat(depth);
   const home = base || './';
   const canonical = C.domain ? C.domain.replace(/\/$/, '') + canonicalPath : '';
@@ -464,7 +468,7 @@ ${canonical ? `<link rel="canonical" href="${esc(canonical)}">\n<meta property="
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"></noscript>
 <link rel="stylesheet" href="${base}assets/style.css?v=${V_CSS}">
-</head>
+${headExtra}</head>
 <body>
 ${DEMO ? '<div class="contoh" role="note">Halaman contoh. Teks bertanda kuning adalah data contoh yang harus diganti sebelum iklan dijalankan.</div>\n' : ''}
 <header class="atas"><div class="wrap atas-isi">
@@ -566,7 +570,7 @@ function berandaMain() {
     : `<div class="tabs" role="group" aria-label="Saring menurut lokasi">${tabs}</div>`;
   const pilihan = gabung([...(campur ? ['dijual atau disewa'] : []), ...(banyakJenis ? ['jenis'] : []), 'lokasi']);
   return `
-<section class="hero" aria-labelledby="judul"><div class="wrap hero-grid">
+<section class="hero${LATAR ? ' hero-foto' : ''}" aria-labelledby="judul"><div class="wrap hero-grid">
   <div class="hero-teks">
     <h1 id="judul">Cari ${RUMAH_H1} di lokasi yang Anda inginkan</h1>
     <p class="lead">Pilih area, bandingkan ${PROP} dan harganya, lalu jadwalkan survei bersama tim marketing kami.</p>
@@ -740,6 +744,28 @@ ${ctaBlok(`Jadwalkan survei ${m(p.nama)}`, 'Isi nama dan nomor HP, lalu WhatsApp
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(join(OUT, 'assets'), { recursive: true });
 cpSync(join(ROOT, 'assets'), join(OUT, 'assets'), { recursive: true });
+{
+  const EXT_LATAR = ['jpg', 'jpeg', 'png', 'webp'];
+  const sumber = EXT_LATAR.map((e) => join(ROOT, 'assets', `latar-beranda.${e}`)).find((f) => existsSync(f));
+  for (const e of EXT_LATAR) rmSync(join(OUT, 'assets', `latar-beranda.${e}`), { force: true }); // sumbernya tidak perlu ikut tayang
+  if (sumber && sharp) {
+    try {
+      const buf = readFileSync(sumber);
+      const id = createHash('sha1').update(buf).update('latar-v1').digest('hex').slice(0, 8);
+      const meta = await sharp(buf).metadata();
+      const lg = await sharp(buf).rotate().resize({ width: 2000, withoutEnlargement: true }).webp({ quality: 72 }).toBuffer();
+      // Layar HP: ambil bagian tengah gambar supaya tidak terlalu diperbesar.
+      const lebarTengah = Math.min(meta.width, Math.round(meta.height * 1.5));
+      const sm = await sharp(buf).extract({ left: Math.round((meta.width - lebarTengah) / 2), top: 0, width: lebarTengah, height: meta.height })
+        .resize({ width: 1000, withoutEnlargement: true }).webp({ quality: 72 }).toBuffer();
+      writeFileSync(join(OUT, 'assets', `latar-${id}-lg.webp`), lg);
+      writeFileSync(join(OUT, 'assets', `latar-${id}-sm.webp`), sm);
+      LATAR = { lg: `assets/latar-${id}-lg.webp`, sm: `assets/latar-${id}-sm.webp`, kb: Math.round((lg.length + sm.length) / 1024) };
+    } catch (e) {
+      console.warn(`Peringatan: gambar latar beranda tidak bisa diproses (${e.message}). Hero tampil polos.`);
+    }
+  }
+}
 
 // Foto: dikecilkan ke WebP, nama file memuat kode isinya, sehingga foto yang diganti langsung tampil baru.
 let jumlahFoto = 0, byteFoto = 0;
@@ -777,6 +803,10 @@ writeFileSync(join(OUT, 'index.html'), page({
   main: berandaMain(),
   canonicalPath: '/',
   ogImage: ogHome,
+  headExtra: LATAR ? `<link rel="preload" as="image" href="${LATAR.lg}" type="image/webp" media="(min-width:701px)" fetchpriority="high">
+<link rel="preload" as="image" href="${LATAR.sm}" type="image/webp" media="(max-width:700px)" fetchpriority="high">
+<style>.hero.hero-foto{background-image:var(--tindih),url(${LATAR.lg})}@media (max-width:700px){.hero.hero-foto{background-image:var(--tindih),url(${LATAR.sm})}}</style>
+` : '',
 }));
 
 data.perumahan.forEach((p, idx) => {

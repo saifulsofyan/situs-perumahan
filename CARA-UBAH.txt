@@ -251,3 +251,11 @@ Kalau satu proyek punya beberapa tipe dan Anda ingin tiap tipe punya kartu, hala
  - Tempat di sekitar proyek yang belum jadi (misalnya rumah sakit yang sedang dibangun) ditulis tanpa waktu tempuh:
    - Rumah Sakit | Aspen Medical | sedang dibangun
    Di halaman, tampil nama tempat dengan lencana kuning "sedang dibangun" sebagai ganti menit.
+
+GAMBAR LATAR BERANDA
+ - Bagian paling atas beranda (judul "Cari rumah di lokasi yang Anda inginkan") memakai foto latar dari file assets/latar-beranda.jpg.
+ - Mengganti gambar: unggah file baru dengan nama yang sama (latar-beranda.jpg) ke folder assets di GitHub, lalu Commit changes.
+   Boleh juga berformat .jpeg, .png, atau .webp, tapi hapus file latar-beranda lama supaya tidak ada dua.
+ - Pakai gambar lebar (perbandingan sekitar 3:1, lebar minimal 1600 px). Situs otomatis membuat versi untuk komputer dan HP.
+   Gambar yang agak gelap paling cocok karena teks di atasnya berwarna putih; situs menambah lapisan gelap tipis supaya teks tetap terbaca.
+ - Menghapus gambar: hapus file latar-beranda dari folder assets. Bagian atas beranda kembali polos berwarna hijau muda.
