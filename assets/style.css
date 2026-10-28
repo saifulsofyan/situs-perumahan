@@ -312,3 +312,51 @@ dialog.dlg-lead{width:min(480px,94vw);margin:auto;position:fixed}
 .tentang{margin:0;max-width:62ch;font-size:1.06rem;line-height:1.75;color:var(--redam)}
 .tentang+.tentang{margin-top:16px}
 .sek-daftar b.belum{padding:2px 9px;border-radius:99px;background:#fff3cd;color:#6b4e00;letter-spacing:.02em;text-transform:none;font-size:.78rem}
+
+/* ===== Lukisan latar beranda: panel senja, jalur langkah, atap hijau penutup ===== */
+/* Panel senja menggantikan bagian putih "Survei dulu". Langit malam dari foto hero turun jadi senja,
+   di bawahnya deretan rumah, apartemen, dan ruko dengan jendela menyala (warna lampu). */
+.senja{position:relative;overflow:hidden;margin-top:-1px;padding:60px 0 156px;color:#fff;
+  background:
+    radial-gradient(80% 190px at 50% 100%,rgba(244,182,63,.42),rgba(244,182,63,0)),
+    linear-gradient(180deg,#0B1522 0,#0F2B3B 36%,#17434B 72%,#1F5A54 100%)}
+.senja::before{content:"";position:absolute;inset:0 0 40% 0;pointer-events:none;opacity:.75;
+  background-image:
+    radial-gradient(1.4px 1.4px at 12% 18%,#fff,transparent),
+    radial-gradient(1px 1px at 31% 8%,rgba(255,255,255,.8),transparent),
+    radial-gradient(1.2px 1.2px at 52% 24%,rgba(255,255,255,.9),transparent),
+    radial-gradient(1px 1px at 71% 12%,rgba(255,255,255,.75),transparent),
+    radial-gradient(1.6px 1.6px at 88% 28%,#fff,transparent),
+    radial-gradient(1px 1px at 22% 40%,rgba(255,255,255,.6),transparent),
+    radial-gradient(1px 1px at 63% 44%,rgba(255,255,255,.55),transparent),
+    radial-gradient(1.2px 1.2px at 94% 6%,rgba(255,255,255,.8),transparent);
+  background-size:380px 300px;
+  -webkit-mask-image:linear-gradient(#000 25%,transparent);mask-image:linear-gradient(#000 25%,transparent)}
+.senja::after{content:"";position:absolute;left:0;right:0;bottom:0;height:150px;pointer-events:none;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 30' preserveAspectRatio='none'%3E%3Cpath d='M0 30V16C180 4 360 2 560 12S940 26 1200 10V30Z' fill='%23FBFCFA'/%3E%3C/svg%3E") left bottom/100% 30px no-repeat,
+    url(atap-senja.svg?v=1) left 14px bottom 6px/auto 118px repeat-x}
+.senja .wrap{position:relative;z-index:1}
+.senja .janji li{border-top-color:rgba(255,255,255,.16)}
+.senja .janji strong{color:#fff}
+.senja .janji .ket{color:#C9DAE0}
+.senja + .bagian-garis{border-top:0}
+#katalog{background-image:radial-gradient(70% 380px at 100% 420px,var(--langit),rgba(234,242,238,0)),radial-gradient(70% 380px at 0 1320px,rgba(244,182,63,.10),rgba(244,182,63,0));background-size:100% 1800px;background-repeat:repeat-y}
+.kartu{box-shadow:0 18px 36px -24px rgba(18,51,42,.5)}
+
+/* Cara membeli: jalur putus-putus menghubungkan langkah, di atas latar hijau muda. */
+#cara{background:var(--langit);border-top:0}
+#cara + .bagian-garis{border-top:0}
+.langkah li{position:relative;border-top:0;padding:16px 0}
+.langkah li:not(:last-child)::after{content:"";position:absolute;left:17px;top:52px;bottom:-16px;border-left:2px dashed rgba(29,75,59,.32)}
+
+/* Penutup: atap hijau naik dari bagian kontak. */
+.masuk{position:relative;margin-top:76px}
+.masuk::before{content:"";position:absolute;left:0;right:0;bottom:calc(100% - 1px);height:92px;pointer-events:none;
+  background:url(atap-fajar.svg?v=1) left bottom/auto 92px repeat-x,linear-gradient(180deg,rgba(234,242,238,0),var(--langit))}
+@media (min-width:800px){
+  .senja{padding:76px 0 200px}
+  .senja::after{height:196px;background-size:100% 40px,auto 156px;background-position:left bottom,left 14px bottom 8px}
+  .masuk{margin-top:96px}
+  .masuk::before{height:124px;background-size:auto 124px,auto}
+}

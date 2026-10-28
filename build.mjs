@@ -613,7 +613,7 @@ function berandaMain() {
   </div>
 </div></section>
 
-<section class="bagian" aria-label="Cara kami bekerja"><div class="wrap">
+<section class="bagian senja" aria-label="Cara kami bekerja"><div class="wrap">
   <ul class="janji">${JANJI.map((j) => `<li><span class="ikon">${j.ikon}</span><strong>${esc(j.judul)}</strong><span class="ket">${esc(j.ket)}</span></li>`).join('')}</ul>
 </div></section>
 
